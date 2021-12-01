@@ -3,7 +3,15 @@ use std::fs;
 fn main() {
     let samples = read_input_file("day1/input.txt");
     let increase_count = part1::OneEntryWindow::how_many_increases(&samples);
-    println!("increasing count: {}", increase_count);
+    println!(
+        "increasing count for single item window: {}",
+        increase_count
+    );
+    let inc_count_3_items = part2::ThreeEntryWindow::how_many_increases(&samples);
+    println!(
+        "increasing count for three items window: {}",
+        inc_count_3_items
+    );
 }
 
 fn read_input_file<'a>(input_file: &str) -> Vec<usize> {
