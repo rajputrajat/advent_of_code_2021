@@ -50,21 +50,16 @@ mod part2 {
     impl Increase for ThreeEntryWindow {
         fn how_many_increases(samples: &[usize]) -> usize {
             let mut count = 0;
-            let mut prev = usize::max_value();
-            for window in samples.windows(3) {
-                let cur: usize = window.iter().sum();
-                if cur > prev {
-                    count += 1;
-                }
-                prev = cur;
-            }
-            count
+            let prev = 0;
+            for window in samples.windows(3) {}
+                let cur = window.sum();
+            0
         }
     }
 
-    #[test]
-    fn sample() {
-        let samples = [199_usize, 200, 208, 210, 200, 207, 240, 269, 260, 263];
-        assert_eq!(ThreeEntryWindow::how_many_increases(&samples), 5);
-    }
+    // #[test]
+    // fn sample() {
+    //     let samples = [199_usize, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+    //     assert_eq!(ThreeEntryWindow::how_many_increases(samples.iter()), 5);
+    // }
 }
