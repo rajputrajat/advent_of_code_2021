@@ -2,8 +2,17 @@ fn main() {
     println!("Hello, world!");
 }
 
-fn how_many_increases<'a, I: Iterator<Item = &'a usize>>(samples: I) -> usize {
-    0
+pub fn how_many_increases<'a, I: Iterator<Item = &'a usize>>(samples: I) -> usize {
+    let increased = |a: &usize, b: &usize| b > a;
+    let mut count = 0;
+    let mut prev = usize::max_value();
+    for cur in samples {
+        if true == increased(&prev, cur) {
+            count += 1;
+        }
+        prev = *cur;
+    }
+    count
 }
 
 #[cfg(test)]
