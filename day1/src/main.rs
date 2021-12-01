@@ -1,18 +1,30 @@
+use std::fs;
+
 fn main() {
-    println!("Hello, world!");
+    let samples = read_input_file("day1/input.txt");
+    let increase_count = how_many_increases(samples.iter());
+    println!("increasing count: {}", increase_count);
 }
 
 pub fn how_many_increases<'a, I: Iterator<Item = &'a usize>>(samples: I) -> usize {
-    let increased = |a: &usize, b: &usize| b > a;
     let mut count = 0;
     let mut prev = usize::max_value();
     for cur in samples {
-        if true == increased(&prev, cur) {
+        if cur > &prev {
             count += 1;
         }
         prev = *cur;
     }
     count
+}
+
+fn read_input_file<'a>(input_file: &str) -> Vec<usize> {
+    let text = fs::read_to_string(input_file).unwrap();
+    let samples: Vec<usize> = text
+        .split_whitespace()
+        .map(|s| s.parse::<usize>().unwrap())
+        .collect();
+    samples
 }
 
 #[cfg(test)]
