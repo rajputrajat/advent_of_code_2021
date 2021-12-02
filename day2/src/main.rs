@@ -1,4 +1,15 @@
-fn main() {}
+use std::{
+    fs::File,
+    io::{prelude::*, BufReader, Result},
+};
+
+fn main() -> Result<()> {
+    let reader = BufReader::new(File::open("day2/input.txt")?);
+    let lines: Vec<String> = reader.lines().map(|s| s.unwrap()).collect();
+    let product = get_product(&lines);
+    println!("product is: {}", product);
+    Ok(())
+}
 
 enum Movement {
     Forward(i32),
@@ -20,7 +31,7 @@ impl Movement {
     }
 }
 
-fn get_product<'a, I: Iterator<Item = &'a str>>(input: I) -> i32 {
+fn get_product(input: &[String]) -> i32 {
     let mut forward = 0;
     let mut depth = 0;
     for line in input {
@@ -40,7 +51,8 @@ mod tests {
 
     #[test]
     fn pos_mul() {
-        assert_eq!(150, get_product(TEST_INPUT.split('\n')));
+        let test_input: Vec<String> = TEST_INPUT.split('\n').map(|s| s.to_owned()).collect();
+        assert_eq!(150, get_product(&test_input));
     }
 
     const TEST_INPUT: &str = r##"forward 5
