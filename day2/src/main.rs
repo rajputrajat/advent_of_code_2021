@@ -5,8 +5,9 @@ use std::{
 
 fn main() -> Result<()> {
     let reader = BufReader::new(File::open("day2/input.txt")?);
-    let lines: Vec<String> = reader.lines().map(|s| s.unwrap()).collect();
-    let product = get_product(&lines);
+    let input: Vec<_> = reader.lines().map(|s| s.unwrap()).collect();
+    let moves = parse_input(&input);
+    let product = part1::get_product(&moves);
     println!("product is: {}", product);
     Ok(())
 }
@@ -31,18 +32,24 @@ impl Movement {
     }
 }
 
-fn get_product(input: &[String]) -> i32 {
-    let mut forward = 0;
-    let mut depth = 0;
-    for line in input {
-        let mov = Movement::parse(line);
-        match mov {
-            Movement::Forward(f) => forward += f,
-            Movement::Down(d) => depth += d,
-            Movement::Up(u) => depth -= u,
-        };
+fn parse_input(input: &[String]) -> Vec<Movement> {
+    input.iter().map(|s| Movement::parse(&s)).collect()
+}
+
+mod part1 {
+    use super::*;
+    pub(super) fn get_product(moves: &[Movement]) -> i32 {
+        let mut forward = 0;
+        let mut depth = 0;
+        for m in moves {
+            match m {
+                Movement::Forward(f) => forward += f,
+                Movement::Down(d) => depth += d,
+                Movement::Up(u) => depth -= u,
+            };
+        }
+        forward * depth
     }
-    forward * depth
 }
 
 #[cfg(test)]
@@ -52,7 +59,8 @@ mod tests {
     #[test]
     fn pos_mul() {
         let test_input: Vec<String> = TEST_INPUT.split('\n').map(|s| s.to_owned()).collect();
-        assert_eq!(150, get_product(&test_input));
+        let moves = parse_input(&test_input);
+        assert_eq!(150, part1::get_product(&moves));
     }
 
     const TEST_INPUT: &str = r##"forward 5
