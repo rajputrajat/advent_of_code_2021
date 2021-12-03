@@ -1,7 +1,19 @@
-use std::str::FromStr;
+use std::{fs::read_to_string, str::FromStr};
 
 fn main() {
-    println!("Hello, world!");
+    let parsed_input = parsing_input_file("day3/input.txt");
+    let power_con = get_power_consumption(&parsed_input);
+    println!("power consumption is: '{}'", power_con);
+}
+
+fn parsing_input_file(path: &str) -> Vec<usize> {
+    let text = read_to_string(path).unwrap();
+    text.split_whitespace()
+        .map(|s| {
+            let b = s.parse::<BinaryNum>().unwrap();
+            b.0
+        })
+        .collect()
 }
 
 fn count_bits(input: usize, out_count: &mut Vec<usize>) {
