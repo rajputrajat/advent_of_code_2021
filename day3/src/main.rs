@@ -92,81 +92,67 @@ fn parse_as_num_vec(input_str: &[String]) -> Vec<Vec<u8>> {
 mod part2 {
     pub(super) fn get_life_support_rating(vec_nums: Vec<Vec<u8>>) -> usize {
         let o2_rating = {
-            let mut reduced_indices: Vec<bool> =
-                std::iter::repeat(true).take(vec_nums.len()).collect();
+            let mut working_indices: Vec<usize> =
+                vec_nums.iter().enumerate().map(|(i, _)| i).collect();
+            let mut bit_pos = 0;
             loop {
-                let mut more_ones = (0, reduced_indices.clone());
+                let mut more_ones = (0, vec![]);
                 let mut more_zeroes = more_ones.clone();
-                let mut bit_pos = 0;
-                reduced_indices
-                    .iter_mut()
-                    .filter(|x| **x)
-                    .enumerate()
-                    .for_each(|(i, _)| {
-                        if vec_nums[i][bit_pos] == 1 {
-                            more_ones.0 += 1;
-                            more_zeroes.1[i] = false;
-                        } else {
-                            more_zeroes.0 += 1;
-                            more_ones.1[i] = false;
-                        }
-                    });
-                reduced_indices = if more_ones.0 > more_zeroes.0 {
+                working_indices.iter().for_each(|&i| {
+                    if vec_nums[i][bit_pos] == 1 {
+                        more_ones.0 += 1;
+                        more_ones.1.push(i);
+                    } else {
+                        more_zeroes.0 += 1;
+                        more_zeroes.1.push(i);
+                    }
+                });
+                println!("more_ones: {:?}", more_ones);
+                println!("more_zeroes: {:?}", more_zeroes);
+                working_indices = if more_ones.0 >= more_zeroes.0 {
                     more_ones.1
                 } else {
                     more_zeroes.1
                 };
                 bit_pos += 1;
-                if reduced_indices.iter().filter(|&&x| x).count() == 1 {
+                println!("{:?}", working_indices);
+                if working_indices.len() == 1 {
                     break;
                 }
             }
-            let mut o2_index = 0;
-            reduced_indices.iter().enumerate().for_each(|(i, &x)| {
-                if x {
-                    o2_index = i;
-                }
-            });
-            binary_vec_to_num(&vec_nums[o2_index])
+            binary_vec_to_num(&vec_nums[working_indices[0]])
         };
 
         let co2_rating = {
-            let mut reduced_indices: Vec<bool> =
-                std::iter::repeat(true).take(vec_nums.len()).collect();
+            let mut working_indices: Vec<usize> =
+                vec_nums.iter().enumerate().map(|(i, _)| i).collect();
+            let mut bit_pos = 0;
             loop {
-                let mut more_ones = (0, reduced_indices.clone());
+                let mut more_ones = (0, vec![]);
                 let mut more_zeroes = more_ones.clone();
-                let mut bit_pos = 0;
-                reduced_indices
-                    .iter_mut()
-                    .filter(|x| **x)
-                    .enumerate()
-                    .for_each(|(i, _)| {
-                        if vec_nums[i][bit_pos] == 1 {
-                            more_ones.0 += 1;
-                            more_zeroes.1[i] = false;
-                        } else {
-                            more_zeroes.0 += 1;
-                            more_ones.1[i] = false;
-                        }
-                    });
-                reduced_indices = if more_ones.0 < more_zeroes.0 {
-                    more_ones.1
-                } else {
+                working_indices.iter().for_each(|&i| {
+                    if vec_nums[i][bit_pos] == 1 {
+                        more_ones.0 += 1;
+                        more_ones.1.push(i);
+                    } else {
+                        more_zeroes.0 += 1;
+                        more_zeroes.1.push(i);
+                    }
+                });
+                println!("more_ones: {:?}", more_ones);
+                println!("more_zeroes: {:?}", more_zeroes);
+                working_indices = if more_ones.0 >= more_zeroes.0 {
                     more_zeroes.1
+                } else {
+                    more_ones.1
                 };
                 bit_pos += 1;
-                if reduced_indices.iter().filter(|&&x| x).count() == 1 {
+                println!("{:?}", working_indices);
+                if working_indices.len() == 1 {
                     break;
                 }
             }
-            let mut co2_index = 0;
-            reduced_indices.iter().enumerate().for_each(|(i, &x)| {
-                if x {
-                    co2_index = i;
-                }
-            });
-            binary_vec_to_num(&vec_nums[co2_index])
+            binary_vec_to_num(&vec_nums[working_indices[0]])
         };
         o2_rating * co2_rating
     }
