@@ -39,21 +39,23 @@ struct BinaryNum(usize);
 impl FromStr for BinaryNum {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let b = Self(parse_binary_number_string(s)?);
+        let b = Self(BinaryNum::parse_binary_number_string(s)?);
         Ok(b)
     }
 }
 
-fn parse_binary_number_string(input_str: &str) -> Result<usize, String> {
-    let mut num = 0;
-    for c in input_str.chars() {
-        let c = c.to_string();
-        num <<= 1;
-        num |= c
-            .parse::<usize>()
-            .map_err(|e| format!("could not parse. e: '{}'", e))?;
+impl BinaryNum {
+    fn parse_binary_number_string(input_str: &str) -> Result<usize, String> {
+        let mut num = 0;
+        for c in input_str.chars() {
+            let c = c.to_string();
+            num <<= 1;
+            num |= c
+                .parse::<usize>()
+                .map_err(|e| format!("could not parse. e: '{}'", e))?;
+        }
+        Ok(num)
     }
-    Ok(num)
 }
 
 fn get_power_consumption(input: &[usize]) -> usize {
@@ -85,8 +87,8 @@ mod tests {
 
     #[test]
     fn parse_bstr() {
-        assert_eq!(parse_binary_number_string("1000").unwrap(), 8);
-        assert_eq!(parse_binary_number_string("1100").unwrap(), 12);
+        assert_eq!(BinaryNum::parse_binary_number_string("1000").unwrap(), 8);
+        assert_eq!(BinaryNum::parse_binary_number_string("1100").unwrap(), 12);
     }
 
     #[test]
