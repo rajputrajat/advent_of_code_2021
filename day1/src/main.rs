@@ -14,7 +14,7 @@ fn main() {
     );
 }
 
-fn read_input_file<'a>(input_file: &str) -> Vec<usize> {
+fn read_input_file(input_file: &str) -> Vec<usize> {
     let text = fs::read_to_string(input_file).unwrap();
     let samples: Vec<usize> = text
         .split_whitespace()

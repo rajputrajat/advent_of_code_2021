@@ -82,9 +82,8 @@ mod part1 {
             gamma_rate
         };
         let epsilon_rate = {
-            let bits_count_max = (0_usize | (1 << count_ones_per_bit_pos.len())) - 1;
-            let epsilon_rate = bits_count_max ^ gamma_rate;
-            epsilon_rate
+            let bits_count_max = (1 << count_ones_per_bit_pos.len()) - 1;
+            bits_count_max ^ gamma_rate
         };
         gamma_rate * epsilon_rate
     }

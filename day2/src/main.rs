@@ -35,7 +35,7 @@ impl Movement {
 }
 
 fn parse_input(input: &[String]) -> Vec<Movement> {
-    input.iter().map(|s| Movement::parse(&s)).collect()
+    input.iter().map(|s| Movement::parse(s)).collect()
 }
 
 mod part1 {
