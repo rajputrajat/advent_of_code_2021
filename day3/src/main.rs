@@ -4,6 +4,10 @@ fn main() {
     let parsed_input = parsing_input_file("day3/input.txt");
     let power_con = get_power_consumption(&parsed_input);
     println!("power consumption is: '{}'", power_con);
+
+    let part2_input = part2::parsing_input_file("day3/input.txt");
+    let life_support_rating = part2::get_life_support_rating(part2::parse_as_num_vec(&part2_input));
+    println!("life support rating: '{}'", life_support_rating);
 }
 
 fn parsing_input_file(path: &str) -> Vec<usize> {
@@ -82,6 +86,12 @@ fn get_power_consumption(input: &[usize]) -> usize {
 }
 
 mod part2 {
+    use super::*;
+    pub(super) fn parsing_input_file(path: &str) -> Vec<String> {
+        let text = read_to_string(path).unwrap();
+        text.split_whitespace().map(|s| s.to_string()).collect()
+    }
+
     pub(super) fn parse_as_num_vec(input_str: &[String]) -> Vec<Vec<u8>> {
         let vv_nums: Vec<Vec<u8>> = input_str
             .iter()
