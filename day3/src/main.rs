@@ -81,15 +81,15 @@ fn get_power_consumption(input: &[usize]) -> usize {
     gamma_rate * epsilon_rate
 }
 
-fn parse_as_num_vec(input_str: &[String]) -> Vec<Vec<u8>> {
-    let vv_nums: Vec<Vec<u8>> = input_str
-        .iter()
-        .map(|s| s.chars().map(|c| c.to_string().parse().unwrap()).collect())
-        .collect();
-    vv_nums
-}
-
 mod part2 {
+    pub(super) fn parse_as_num_vec(input_str: &[String]) -> Vec<Vec<u8>> {
+        let vv_nums: Vec<Vec<u8>> = input_str
+            .iter()
+            .map(|s| s.chars().map(|c| c.to_string().parse().unwrap()).collect())
+            .collect();
+        vv_nums
+    }
+
     pub(super) fn get_life_support_rating(vec_nums: Vec<Vec<u8>>) -> usize {
         let o2_rating = {
             let mut working_indices: Vec<usize> =
@@ -176,7 +176,7 @@ mod tests {
     #[test]
     fn sample_str_to_num_vecs() {
         assert_eq!(
-            parse_as_num_vec(&["11000".to_owned(), "10010".to_owned()]),
+            part2::parse_as_num_vec(&["11000".to_owned(), "10010".to_owned()]),
             vec![vec![1, 1, 0, 0, 0], vec![1, 0, 0, 1, 0]]
         );
     }
@@ -197,7 +197,7 @@ mod tests {
     #[test]
     fn life_support_rating() {
         let num_input: Vec<String> = INPUT.split_whitespace().map(|s| s.to_owned()).collect();
-        let nvec = parse_as_num_vec(&num_input);
+        let nvec = part2::parse_as_num_vec(&num_input);
         assert_eq!(230, part2::get_life_support_rating(nvec));
     }
 
