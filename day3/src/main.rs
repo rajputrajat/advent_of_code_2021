@@ -107,15 +107,12 @@ mod part2 {
                         more_zeroes.1.push(i);
                     }
                 });
-                println!("more_ones: {:?}", more_ones);
-                println!("more_zeroes: {:?}", more_zeroes);
                 working_indices = if more_ones.0 >= more_zeroes.0 {
                     more_ones.1
                 } else {
                     more_zeroes.1
                 };
                 bit_pos += 1;
-                println!("{:?}", working_indices);
                 if working_indices.len() == 1 {
                     break;
                 }
@@ -139,15 +136,12 @@ mod part2 {
                         more_zeroes.1.push(i);
                     }
                 });
-                println!("more_ones: {:?}", more_ones);
-                println!("more_zeroes: {:?}", more_zeroes);
                 working_indices = if more_ones.0 >= more_zeroes.0 {
                     more_zeroes.1
                 } else {
                     more_ones.1
                 };
                 bit_pos += 1;
-                println!("{:?}", working_indices);
                 if working_indices.len() == 1 {
                     break;
                 }
