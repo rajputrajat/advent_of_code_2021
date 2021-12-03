@@ -1,88 +1,106 @@
 use std::{fs::read_to_string, str::FromStr};
 
 fn main() {
-    let parsed_input = parsing_input_file("day3/input.txt");
-    let power_con = get_power_consumption(&parsed_input);
-    println!("power consumption is: '{}'", power_con);
-
-    let part2_input = part2::parsing_input_file("day3/input.txt");
-    let life_support_rating = part2::get_life_support_rating(part2::parse_as_num_vec(&part2_input));
-    println!("life support rating: '{}'", life_support_rating);
+    println!("power consumption is: '{}'", {
+        let parsed_input = part1::parsing_input_file("day3/input.txt");
+        part1::get_power_consumption(&parsed_input)
+    });
+    println!("life support rating: '{}'", {
+        let part2_input = part2::parsing_input_file("day3/input.txt");
+        part2::get_life_support_rating(part2::parse_as_num_vec(&part2_input))
+    });
 }
 
-fn parsing_input_file(path: &str) -> Vec<usize> {
-    let text = read_to_string(path).unwrap();
-    text.split_whitespace()
-        .map(|s| {
-            let b = s.parse::<BinaryNum>().unwrap();
-            b.0
-        })
-        .collect()
-}
+mod part1 {
+    use super::*;
 
-fn count_bits(input: usize, out_count: &mut Vec<usize>) {
-    let mut bit_pos = 0;
-    let mut i = input;
-    loop {
-        if i == 0 {
-            break;
-        }
-        let value_at_current_bit_pos = if (i & 0x1) != 0 { 1 } else { 0 };
-        if bit_pos + 1 > out_count.len() {
-            out_count.push(value_at_current_bit_pos);
-        } else {
-            out_count[bit_pos] += value_at_current_bit_pos;
-        }
-        bit_pos += 1;
-        i >>= 1;
+    pub(super) fn parsing_input_file(path: &str) -> Vec<usize> {
+        let text = read_to_string(path).unwrap();
+        text.split_whitespace()
+            .map(|s| {
+                let b = s.parse::<BinaryNum>().unwrap();
+                b.0
+            })
+            .collect()
     }
-}
 
-struct BinaryNum(usize);
-
-impl FromStr for BinaryNum {
-    type Err = String;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let b = Self(BinaryNum::parse_binary_number_string(s)?);
-        Ok(b)
-    }
-}
-
-impl BinaryNum {
-    fn parse_binary_number_string(input_str: &str) -> Result<usize, String> {
-        let mut num = 0;
-        for c in input_str.chars() {
-            let c = c.to_string();
-            num <<= 1;
-            num |= c
-                .parse::<usize>()
-                .map_err(|e| format!("could not parse. e: '{}'", e))?;
-        }
-        Ok(num)
-    }
-}
-
-fn get_power_consumption(input: &[usize]) -> usize {
-    let mut count_ones_per_bit_pos = Vec::<usize>::new();
-    for i in input {
-        count_bits(*i, &mut count_ones_per_bit_pos);
-    }
-    let half_of_max_ones_or_zeros = input.len() / 2;
-    let gamma_rate = {
-        let mut gamma_rate = 0;
-        for (i, count_for_bit) in count_ones_per_bit_pos.iter().enumerate() {
-            if count_for_bit >= &half_of_max_ones_or_zeros {
-                gamma_rate |= 1 << i;
+    fn count_bits(input: usize, out_count: &mut Vec<usize>) {
+        let mut bit_pos = 0;
+        let mut i = input;
+        loop {
+            if i == 0 {
+                break;
             }
+            let value_at_current_bit_pos = if (i & 0x1) != 0 { 1 } else { 0 };
+            if bit_pos + 1 > out_count.len() {
+                out_count.push(value_at_current_bit_pos);
+            } else {
+                out_count[bit_pos] += value_at_current_bit_pos;
+            }
+            bit_pos += 1;
+            i >>= 1;
         }
-        gamma_rate
-    };
-    let epsilon_rate = {
-        let bits_count_max = (0_usize | (1 << count_ones_per_bit_pos.len())) - 1;
-        let epsilon_rate = bits_count_max ^ gamma_rate;
-        epsilon_rate
-    };
-    gamma_rate * epsilon_rate
+    }
+
+    pub(super) struct BinaryNum(pub(super) usize);
+
+    impl FromStr for BinaryNum {
+        type Err = String;
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let b = Self(BinaryNum::parse_binary_number_string(s)?);
+            Ok(b)
+        }
+    }
+
+    impl BinaryNum {
+        fn parse_binary_number_string(input_str: &str) -> Result<usize, String> {
+            let mut num = 0;
+            for c in input_str.chars() {
+                let c = c.to_string();
+                num <<= 1;
+                num |= c
+                    .parse::<usize>()
+                    .map_err(|e| format!("could not parse. e: '{}'", e))?;
+            }
+            Ok(num)
+        }
+    }
+
+    pub(super) fn get_power_consumption(input: &[usize]) -> usize {
+        let mut count_ones_per_bit_pos = Vec::<usize>::new();
+        for i in input {
+            count_bits(*i, &mut count_ones_per_bit_pos);
+        }
+        let half_of_max_ones_or_zeros = input.len() / 2;
+        let gamma_rate = {
+            let mut gamma_rate = 0;
+            for (i, count_for_bit) in count_ones_per_bit_pos.iter().enumerate() {
+                if count_for_bit >= &half_of_max_ones_or_zeros {
+                    gamma_rate |= 1 << i;
+                }
+            }
+            gamma_rate
+        };
+        let epsilon_rate = {
+            let bits_count_max = (0_usize | (1 << count_ones_per_bit_pos.len())) - 1;
+            let epsilon_rate = bits_count_max ^ gamma_rate;
+            epsilon_rate
+        };
+        gamma_rate * epsilon_rate
+    }
+
+    #[test]
+    fn parse_bstr() {
+        assert_eq!(BinaryNum::parse_binary_number_string("1000").unwrap(), 8);
+        assert_eq!(BinaryNum::parse_binary_number_string("1100").unwrap(), 12);
+    }
+
+    #[test]
+    fn to_bits() {
+        let mut out = vec![];
+        count_bits(0b10110, &mut out);
+        assert_eq!(out, vec![0_usize, 1, 1, 0, 1])
+    }
 }
 
 mod part2 {
@@ -192,19 +210,6 @@ mod tests {
     }
 
     #[test]
-    fn parse_bstr() {
-        assert_eq!(BinaryNum::parse_binary_number_string("1000").unwrap(), 8);
-        assert_eq!(BinaryNum::parse_binary_number_string("1100").unwrap(), 12);
-    }
-
-    #[test]
-    fn to_bits() {
-        let mut out = vec![];
-        count_bits(0b10110, &mut out);
-        assert_eq!(out, vec![0_usize, 1, 1, 0, 1])
-    }
-
-    #[test]
     fn life_support_rating() {
         let num_input: Vec<String> = INPUT.split_whitespace().map(|s| s.to_owned()).collect();
         let nvec = part2::parse_as_num_vec(&num_input);
@@ -216,12 +221,12 @@ mod tests {
         let num_input: Vec<usize> = INPUT
             .split_whitespace()
             .map(|s| {
-                let b = s.parse::<BinaryNum>().unwrap();
+                let b = s.parse::<part1::BinaryNum>().unwrap();
                 b.0
             })
             .collect();
         println!("input: {:?}", num_input);
-        let pc = get_power_consumption(&num_input);
+        let pc = part1::get_power_consumption(&num_input);
         assert_eq!(198, pc);
     }
 
