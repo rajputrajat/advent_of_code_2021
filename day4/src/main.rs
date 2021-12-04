@@ -80,10 +80,14 @@ struct Row<'b> {
 impl<'b> Iterator for Row<'b> {
     type Item = Cell;
     fn next(&mut self) -> Option<Self::Item> {
-        let index = self.column_index * 5 + self.row_index;
-        let rv = self.card.0.get(index as usize);
-        self.column_index += 1;
-        rv.map(|x| *x)
+        if self.column_index == BingoCard::COLUMN_COUNT {
+            None
+        } else {
+            let index = self.column_index + (5 * self.row_index);
+            let rv = self.card.0.get(index as usize);
+            self.column_index += 1;
+            rv.map(|x| *x)
+        }
     }
 }
 
@@ -96,10 +100,14 @@ struct Column<'b> {
 impl<'b> Iterator for Column<'b> {
     type Item = Cell;
     fn next(&mut self) -> Option<Self::Item> {
-        let index = self.column_index * 5 + self.row_index;
-        let rv = self.card.0.get(index as usize);
-        self.row_index += 1;
-        rv.map(|x| *x)
+        if self.row_index == BingoCard::ROW_COUNT {
+            None
+        } else {
+            let index = self.column_index + (5 * self.row_index);
+            let rv = self.card.0.get(index as usize);
+            self.row_index += 1;
+            rv.map(|x| *x)
+        }
     }
 }
 
@@ -153,6 +161,14 @@ mod tests {
             .collect();
         assert_eq!(vec![7, 4, 9, 5, 11], first_5);
         assert_eq!(vec![1, 26, 3, 19, 8], last_5);
+    }
+
+    #[test]
+    fn fist_card_2nd_row() {
+        let data = parse_input(INPUT);
+        let first_card = data.cards.get(0).unwrap();
+        let second_row: Vec<u8> = first_card.row(1).map(|c| c.0).collect();
+        assert_eq!(vec![8, 2, 23, 4, 24], second_row);
     }
 
     #[test]
