@@ -181,7 +181,7 @@ mod part2 {
         let (balls, mut cards) = parse_input(input_text);
         let mut win_indices: Vec<usize> = vec![];
         let mut ball_cardi: Option<(&BallCall, usize)> = None;
-        for ball in &balls.0 {
+        'balls_l: for ball in &balls.0 {
             for (i, card) in cards.iter_mut().enumerate() {
                 if win_indices.contains(&i) {
                     continue;
@@ -190,6 +190,7 @@ mod part2 {
                     win_indices.push(i);
                     if win_indices.len() == cards.len() {
                         ball_cardi = Some((ball, i));
+                        break 'balls_l;
                     }
                     break;
                 }
