@@ -1,6 +1,12 @@
 use anyhow::Result;
+use std::fs::read_to_string;
 
-fn main() {}
+fn main() -> Result<()> {
+    let input_str = read_to_string("day4/input.txt")?;
+    let final_score = get_final_score(&input_str);
+    println!("final score: {:?}", final_score);
+    Ok(())
+}
 
 #[derive(Clone, Copy, PartialEq)]
 enum DaubStatus {
@@ -123,11 +129,6 @@ impl<'b> Iterator for Column<'b> {
 
 struct BallCalls(Vec<BallCall>);
 
-struct BingoData {
-    ball_calls: BallCalls,
-    cards: Vec<BingoCard>,
-}
-
 fn parse_input(input: &str) -> (BallCalls, Vec<BingoCard>) {
     let mut iter = input.split_whitespace();
     let ballcalls_str = iter.next().expect("first csv are missing");
@@ -151,6 +152,22 @@ fn parse_input(input: &str) -> (BallCalls, Vec<BingoCard>) {
         })
         .collect();
     (ball_calls, cards)
+}
+
+fn get_final_score(input_text: &str) -> usize {
+    let (balls, mut cards) = parse_input(input_text);
+    let mut ball_cardi: Option<(&BallCall, usize)> = None;
+    'balls_l: for ball in &balls.0 {
+        for (i, card) in cards.iter_mut().enumerate() {
+            if card.apply_ball_call(ball) == WinStatus::Win {
+                ball_cardi = Some((ball, i));
+                break 'balls_l;
+            }
+        }
+    }
+    let sum_nmark = cards.get(ball_cardi.unwrap().1).unwrap().sum_non_marked();
+    let winning_ball_call = ball_cardi.unwrap().0 .0 as usize;
+    sum_nmark * winning_ball_call
 }
 
 #[cfg(test)]
@@ -184,18 +201,7 @@ mod tests {
 
     #[test]
     fn test_sample_input() {
-        let (balls, mut cards) = parse_input(INPUT);
-        let mut ball_cardi: Option<(&BallCall, usize)> = None;
-        'balls_l: for ball in &balls.0 {
-            for (i, card) in cards.iter_mut().enumerate() {
-                if card.apply_ball_call(ball) == WinStatus::Win {
-                    ball_cardi = Some((ball, i));
-                    break 'balls_l;
-                }
-            }
-        }
-        let sum_nmark = cards.get(ball_cardi.unwrap().1).unwrap().sum_non_marked();
-        assert_eq!(4512, sum_nmark * ball_cardi.unwrap().0 .0 as usize);
+        assert_eq!(4512, get_final_score(INPUT));
     }
 
     const INPUT: &str = r##"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
