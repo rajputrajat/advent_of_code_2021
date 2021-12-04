@@ -179,6 +179,7 @@ mod part2 {
 
     pub fn get_final_score(input_text: &str) -> usize {
         let (balls, mut cards) = parse_input(input_text);
+        let num_cards = cards.len();
         let mut win_indices: Vec<usize> = vec![];
         let mut ball_cardi: Option<(&BallCall, usize)> = None;
         'balls_l: for ball in &balls.0 {
@@ -188,11 +189,10 @@ mod part2 {
                 }
                 if card.apply_ball_call(ball) == WinStatus::Win {
                     win_indices.push(i);
-                    if win_indices.len() == cards.len() {
+                    if win_indices.len() == num_cards {
                         ball_cardi = Some((ball, i));
                         break 'balls_l;
                     }
-                    break;
                 }
             }
         }
