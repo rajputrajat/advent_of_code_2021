@@ -3,8 +3,14 @@ use std::fs::read_to_string;
 
 fn main() -> Result<()> {
     let input_str = read_to_string("day4/input.txt")?;
-    let final_score = part1::get_final_score(&input_str);
-    println!("final score: {:?}", final_score);
+    println!(
+        "final score part 1: '{:?}'",
+        part1::get_final_score(&input_str)
+    );
+    println!(
+        "final score part 2: '{:?}'",
+        part2::get_final_score(&input_str)
+    );
     Ok(())
 }
 
