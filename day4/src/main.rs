@@ -3,7 +3,7 @@ use std::fs::read_to_string;
 
 fn main() -> Result<()> {
     let input_str = read_to_string("day4/input.txt")?;
-    let final_score = get_final_score(&input_str);
+    let final_score = part1::get_final_score(&input_str);
     println!("final score: {:?}", final_score);
     Ok(())
 }
@@ -154,20 +154,53 @@ fn parse_input(input: &str) -> (BallCalls, Vec<BingoCard>) {
     (ball_calls, cards)
 }
 
-fn get_final_score(input_text: &str) -> usize {
-    let (balls, mut cards) = parse_input(input_text);
-    let mut ball_cardi: Option<(&BallCall, usize)> = None;
-    'balls_l: for ball in &balls.0 {
-        for (i, card) in cards.iter_mut().enumerate() {
-            if card.apply_ball_call(ball) == WinStatus::Win {
-                ball_cardi = Some((ball, i));
-                break 'balls_l;
+mod part1 {
+    use super::*;
+
+    pub fn get_final_score(input_text: &str) -> usize {
+        let (balls, mut cards) = parse_input(input_text);
+        let mut ball_cardi: Option<(&BallCall, usize)> = None;
+        'balls_l: for ball in &balls.0 {
+            for (i, card) in cards.iter_mut().enumerate() {
+                if card.apply_ball_call(ball) == WinStatus::Win {
+                    ball_cardi = Some((ball, i));
+                    break 'balls_l;
+                }
             }
         }
+        let sum_nmark = cards.get(ball_cardi.unwrap().1).unwrap().sum_non_marked();
+        let winning_ball_call = ball_cardi.unwrap().0 .0 as usize;
+        sum_nmark * winning_ball_call
     }
-    let sum_nmark = cards.get(ball_cardi.unwrap().1).unwrap().sum_non_marked();
-    let winning_ball_call = ball_cardi.unwrap().0 .0 as usize;
-    sum_nmark * winning_ball_call
+}
+
+mod part2 {
+    use super::*;
+
+    pub fn get_final_score(input_text: &str) -> usize {
+        let (balls, mut cards) = parse_input(input_text);
+        let mut ball_cardi: Option<(&BallCall, usize)> = None;
+        for ball in &balls.0 {
+            let mut card_won_index: Option<usize> = None;
+            for (i, card) in cards.iter_mut().enumerate() {
+                if card.apply_ball_call(ball) == WinStatus::Win {
+                    ball_cardi = Some((ball, i));
+                    card_won_index = Some(i);
+                    break;
+                }
+            }
+            if let Some(card_won_index) = card_won_index {
+                cards.remove(card_won_index);
+                if cards.len() == 1 {
+                    ball_cardi = Some((&ball, card_won_index));
+                    break;
+                }
+            }
+        }
+        let sum_nmark = cards.get(ball_cardi.unwrap().1).unwrap().sum_non_marked();
+        let winning_ball_call = ball_cardi.unwrap().0 .0 as usize;
+        sum_nmark * winning_ball_call
+    }
 }
 
 #[cfg(test)]
@@ -201,7 +234,12 @@ mod tests {
 
     #[test]
     fn test_sample_input() {
-        assert_eq!(4512, get_final_score(INPUT));
+        assert_eq!(4512, part1::get_final_score(INPUT));
+    }
+
+    #[test]
+    fn part2_with_sample() {
+        assert_eq!(1924, part2::get_final_score(INPUT));
     }
 
     const INPUT: &str = r##"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
