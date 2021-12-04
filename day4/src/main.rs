@@ -164,11 +164,19 @@ mod tests {
     }
 
     #[test]
-    fn fist_card_2nd_row() {
+    fn first_card_2nd_row() {
         let data = parse_input(INPUT);
         let first_card = data.cards.get(0).unwrap();
         let second_row: Vec<u8> = first_card.row(1).map(|c| c.0).collect();
         assert_eq!(vec![8, 2, 23, 4, 24], second_row);
+    }
+
+    #[test]
+    fn third_card_last_column() {
+        let data = parse_input(INPUT);
+        let third_card = data.cards.get(2).unwrap();
+        let last_column: Vec<u8> = third_card.column(4).map(|c| c.0).collect();
+        assert_eq!(vec![4, 19, 20, 5, 7], last_column);
     }
 
     #[test]
