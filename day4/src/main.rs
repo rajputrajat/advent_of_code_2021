@@ -40,9 +40,9 @@ impl BingoCard {
     pub fn apply_ball_call(&mut self, ball: &BallCall) -> WinStatus {
         if let Some(found_cell) = self.0.iter_mut().find(|c| c.0 == ball.0) {
             found_cell.1 = DaubStatus::Marked;
-            return self.check_win();
+            self.check_win()
         } else {
-            return WinStatus::Pass;
+            WinStatus::Pass
         }
     }
 
@@ -102,7 +102,7 @@ impl<'b> Iterator for Row<'b> {
             let index = self.column_index + (5 * self.row_index);
             let rv = self.card.0.get(index as usize);
             self.column_index += 1;
-            rv.map(|x| *x)
+            rv.copied()
         }
     }
 }
@@ -122,7 +122,7 @@ impl<'b> Iterator for Column<'b> {
             let index = self.column_index + (5 * self.row_index);
             let rv = self.card.0.get(index as usize);
             self.row_index += 1;
-            rv.map(|x| *x)
+            rv.copied()
         }
     }
 }
