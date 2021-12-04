@@ -8,6 +8,7 @@ enum DaubStatus {
     Marked,
 }
 
+#[derive(PartialEq)]
 pub enum WinStatus {
     Pass,
     Win,
@@ -15,15 +16,11 @@ pub enum WinStatus {
 
 pub struct BallCall(u8);
 
-trait Bingo {
-    fn next_ball_call() -> BallCall;
-}
-
 #[derive(Clone, Copy)]
-struct Cell(u8, DaubStatus);
+pub struct Cell(u8, DaubStatus);
 
 impl Cell {
-    fn from_num(cell_num: u8) -> Self {
+    pub fn from_num(cell_num: u8) -> Self {
         Self(cell_num, DaubStatus::NotMarked)
     }
 }
@@ -52,6 +49,19 @@ impl BingoCard {
         } else {
             WinStatus::Pass
         }
+    }
+
+    fn sum_non_marked(&self) -> usize {
+        self.0
+            .iter()
+            .filter_map(|c| {
+                if c.1 == DaubStatus::NotMarked {
+                    Some(c.0 as usize)
+                } else {
+                    None
+                }
+            })
+            .sum()
     }
 
     fn row(&self, row_index: u8) -> Row {
@@ -118,7 +128,7 @@ struct BingoData {
     cards: Vec<BingoCard>,
 }
 
-fn parse_input(input: &str) -> BingoData {
+fn parse_input(input: &str) -> (BallCalls, Vec<BingoCard>) {
     let mut iter = input.split_whitespace();
     let ballcalls_str = iter.next().expect("first csv are missing");
     let bingo_cards_str: Vec<&str> = iter.collect();
@@ -140,7 +150,7 @@ fn parse_input(input: &str) -> BingoData {
             BingoCard(cell_vec)
         })
         .collect();
-    BingoData { ball_calls, cards }
+    (ball_calls, cards)
 }
 
 #[cfg(test)]
@@ -149,38 +159,44 @@ mod tests {
 
     #[test]
     fn check_balls() {
-        let data = parse_input(INPUT);
-        let first_5: Vec<u8> = data.ball_calls.0.iter().take(5).map(|b| b.0).collect();
-        let last_5: Vec<u8> = data
-            .ball_calls
-            .0
-            .iter()
-            .rev()
-            .take(5)
-            .map(|b| b.0)
-            .collect();
+        let (balls, _) = parse_input(INPUT);
+        let first_5: Vec<u8> = balls.0.iter().take(5).map(|b| b.0).collect();
+        let last_5: Vec<u8> = balls.0.iter().rev().take(5).map(|b| b.0).collect();
         assert_eq!(vec![7, 4, 9, 5, 11], first_5);
         assert_eq!(vec![1, 26, 3, 19, 8], last_5);
     }
 
     #[test]
     fn first_card_2nd_row() {
-        let data = parse_input(INPUT);
-        let first_card = data.cards.get(0).unwrap();
+        let (_, cards) = parse_input(INPUT);
+        let first_card = cards.get(0).unwrap();
         let second_row: Vec<u8> = first_card.row(1).map(|c| c.0).collect();
         assert_eq!(vec![8, 2, 23, 4, 24], second_row);
     }
 
     #[test]
     fn third_card_last_column() {
-        let data = parse_input(INPUT);
-        let third_card = data.cards.get(2).unwrap();
+        let (_, cards) = parse_input(INPUT);
+        let third_card = cards.get(2).unwrap();
         let last_column: Vec<u8> = third_card.column(4).map(|c| c.0).collect();
         assert_eq!(vec![4, 19, 20, 5, 7], last_column);
     }
 
     #[test]
-    fn test_sample_input() {}
+    fn test_sample_input() {
+        let (balls, mut cards) = parse_input(INPUT);
+        let mut ball_cardi: Option<(&BallCall, usize)> = None;
+        'balls_l: for ball in &balls.0 {
+            for (i, card) in cards.iter_mut().enumerate() {
+                if card.apply_ball_call(ball) == WinStatus::Win {
+                    ball_cardi = Some((ball, i));
+                    break 'balls_l;
+                }
+            }
+        }
+        let sum_nmark = cards.get(ball_cardi.unwrap().1).unwrap().sum_non_marked();
+        assert_eq!(4512, sum_nmark * ball_cardi.unwrap().0 .0 as usize);
+    }
 
     const INPUT: &str = r##"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
