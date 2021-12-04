@@ -179,20 +179,18 @@ mod part2 {
 
     pub fn get_final_score(input_text: &str) -> usize {
         let (balls, mut cards) = parse_input(input_text);
+        let mut win_indices: Vec<usize> = vec![];
         let mut ball_cardi: Option<(&BallCall, usize)> = None;
         for ball in &balls.0 {
-            let mut card_won_index: Option<usize> = None;
             for (i, card) in cards.iter_mut().enumerate() {
-                if card.apply_ball_call(ball) == WinStatus::Win {
-                    ball_cardi = Some((ball, i));
-                    card_won_index = Some(i);
-                    break;
+                if win_indices.contains(&i) {
+                    continue;
                 }
-            }
-            if let Some(card_won_index) = card_won_index {
-                cards.remove(card_won_index);
-                if cards.len() == 1 {
-                    ball_cardi = Some((&ball, card_won_index));
+                if card.apply_ball_call(ball) == WinStatus::Win {
+                    win_indices.push(i);
+                    if win_indices.len() == cards.len() {
+                        ball_cardi = Some((ball, i));
+                    }
                     break;
                 }
             }
