@@ -118,14 +118,8 @@ fn parse_input(input_text: &str) -> Vec<Line> {
         .split('\n')
         .map(|l| {
             let nums: Vec<u16> = l
-                .chars()
-                .filter_map(|c| {
-                    if c == ' ' || c == ',' || c == '-' || c == '>' {
-                        None
-                    } else {
-                        Some(c.to_string().parse::<u16>().unwrap())
-                    }
-                })
+                .split(&[' ', ',', '-', '>'][..])
+                .filter_map(|s| s.to_string().parse::<u16>().ok())
                 .collect();
             debug_assert_eq!(nums.len(), 4);
             Line::from_points(
