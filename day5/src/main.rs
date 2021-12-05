@@ -110,8 +110,14 @@ fn parse_input(input_text: &str) -> Vec<Line> {
         .split('\n')
         .map(|l| {
             let nums: Vec<u16> = l
-                .split(&[' ', ',', '-', '>'][..])
-                .map(|c| c.to_string().parse::<u16>().unwrap())
+                .chars()
+                .filter_map(|c| {
+                    if c == ' ' || c == ',' || c == '-' || c == '>' {
+                        None
+                    } else {
+                        Some(c.to_string().parse::<u16>().unwrap())
+                    }
+                })
                 .collect();
             debug_assert_eq!(nums.len(), 4);
             Line::from_points(
@@ -133,7 +139,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn part1() {}
+    fn part1() {
+        let input = dbg!(parse_input(INPUT));
+    }
 
     const INPUT: &str = r##"0,9 -> 5,9
 8,0 -> 0,8
