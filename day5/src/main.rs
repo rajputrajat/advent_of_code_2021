@@ -3,7 +3,7 @@ use std::cmp::{Ordering, PartialOrd};
 fn main() {}
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
-struct Point {
+pub struct Point {
     x: u16,
     y: u16,
 }
@@ -37,7 +37,7 @@ enum LineType {
 }
 
 #[derive(Debug)]
-struct Line {
+pub struct Line {
     a: Point,
     b: Point,
     typ: LineType,
@@ -81,15 +81,15 @@ impl Line {
         }
     }
 
-    fn from_points(a: &Point, b: &Point) -> Self {
+    pub fn from_points(a: &Point, b: &Point) -> Self {
         let (larger, smaller) = if a > b { (a, b) } else { (b, a) };
         Self {
             a: *larger,
             b: *smaller,
             typ: if a.x == b.x {
-                LineType::Horizontal
-            } else if a.y == b.y {
                 LineType::Vertical
+            } else if a.y == b.y {
+                LineType::Horizontal
             } else {
                 LineType::Angled
             },
@@ -136,7 +136,7 @@ fn parse_input(input_text: &str) -> Vec<Line> {
         .collect()
 }
 
-fn process_all_nodes(lines: &[Line]) -> Vec<Point> {
+pub fn process_all_nodes(lines: &[Line]) -> Vec<Point> {
     let mut current_index = 1;
     let mut crossing_points: Vec<Point> = vec![];
     loop {
@@ -161,20 +161,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn part1() {
+    fn line_crosses() {
         let input = parse_input(INPUT);
         let crossing_points = process_all_nodes(&input);
         assert_eq!(5, crossing_points.len());
     }
 
     const INPUT: &str = r##"0,9 -> 5,9
-8,0 -> 0,8
-9,4 -> 3,4
-2,2 -> 2,1
-7,0 -> 7,4
-6,4 -> 2,0
-0,9 -> 2,9
-3,4 -> 1,4
-0,0 -> 8,8
-5,5 -> 8,2"##;
+    8,0 -> 0,8
+    9,4 -> 3,4
+    2,2 -> 2,1
+    7,0 -> 7,4
+    6,4 -> 2,0
+    0,9 -> 2,9
+    3,4 -> 1,4
+    0,0 -> 8,8
+    5,5 -> 8,2"##;
 }
