@@ -105,10 +105,44 @@ impl Line {
     }
 }
 
+fn parse_input(input_text: &str) -> Vec<Line> {
+    input_text
+        .split('\n')
+        .map(|l| {
+            let nums: Vec<u16> = l
+                .split(&[' ', ',', '-', '>'][..])
+                .map(|c| c.to_string().parse::<u16>().unwrap())
+                .collect();
+            debug_assert_eq!(nums.len(), 4);
+            Line::from_points(
+                &Point {
+                    x: nums[0],
+                    y: nums[1],
+                },
+                &Point {
+                    x: nums[2],
+                    y: nums[3],
+                },
+            )
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn part1() {}
+
+    const INPUT: &str = r##"0,9 -> 5,9
+8,0 -> 0,8
+9,4 -> 3,4
+2,2 -> 2,1
+7,0 -> 7,4
+6,4 -> 2,0
+0,9 -> 2,9
+3,4 -> 1,4
+0,0 -> 8,8
+5,5 -> 8,2"##;
 }
