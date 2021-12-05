@@ -12,8 +12,8 @@ fn main() {
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Point {
-    x: u16,
-    y: u16,
+    x: usize,
+    y: usize,
 }
 
 impl Point {
@@ -117,9 +117,9 @@ fn parse_input(input_text: &str) -> Vec<Line> {
     input_text
         .split('\n')
         .map(|l| {
-            let nums: Vec<u16> = l
+            let nums: Vec<usize> = l
                 .split(&[' ', ',', '-', '>'][..])
-                .filter_map(|s| s.to_string().parse::<u16>().ok())
+                .filter_map(|s| s.to_string().parse().ok())
                 .collect();
             debug_assert_eq!(nums.len(), 4);
             Line::from_points(
