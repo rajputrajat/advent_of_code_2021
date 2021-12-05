@@ -92,34 +92,15 @@ impl Line {
         if self.typ == LineType::Angled || other.typ == LineType::Angled {
             vec![]
         } else {
-            match self.typ {
-                LineType::Horizontal => {
-                    if other.typ == LineType::Horizontal {
-                        if self.a.y == other.a.y {
-                            self.points()
-                                .filter_map(|sp| {
-                                    if other.points().any(|op| op == sp) {
-                                        Some(sp)
-                                    } else {
-                                        None
-                                    }
-                                })
-                                .collect::<Vec<Point>>()
-                        } else {
-                        }
+            self.points()
+                .filter_map(|sp| {
+                    if other.points().any(|op| op == sp) {
+                        Some(sp)
                     } else {
-                        vec![]
+                        None
                     }
-                }
-                LineType::Vertical => {
-                    if other.typ == LineType::Vertical {
-                        vec![]
-                    } else {
-                        vec![]
-                    }
-                }
-                _ => unreachable!(),
-            }
+                })
+                .collect::<Vec<Point>>()
         }
     }
 }
