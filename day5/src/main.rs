@@ -116,22 +116,26 @@ impl Line {
 fn parse_input(input_text: &str) -> Vec<Line> {
     input_text
         .split('\n')
-        .map(|l| {
-            let nums: Vec<usize> = l
-                .split(&[' ', ',', '-', '>'][..])
-                .filter_map(|s| s.to_string().parse().ok())
-                .collect();
-            debug_assert_eq!(nums.len(), 4);
-            Line::from_points(
-                &Point {
-                    x: nums[0],
-                    y: nums[1],
-                },
-                &Point {
-                    x: nums[2],
-                    y: nums[3],
-                },
-            )
+        .filter_map(|l| {
+            if l.is_empty() {
+                None
+            } else {
+                let nums: Vec<usize> = l
+                    .split(&[' ', ',', '-', '>'][..])
+                    .filter_map(|s| s.to_string().parse().ok())
+                    .collect();
+                debug_assert_eq!(nums.len(), 4);
+                Some(Line::from_points(
+                    &Point {
+                        x: nums[0],
+                        y: nums[1],
+                    },
+                    &Point {
+                        x: nums[2],
+                        y: nums[3],
+                    },
+                ))
+            }
         })
         .collect()
 }
