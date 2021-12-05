@@ -19,9 +19,9 @@ impl PartialOrd for Point {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         let selfd = self.distance();
         let otherd = other.distance();
-        if selfd > otherd {
+        if selfd < otherd {
             Some(Ordering::Greater)
-        } else if selfd < otherd {
+        } else if selfd > otherd {
             Some(Ordering::Less)
         } else {
             Some(Ordering::Equal)
@@ -54,11 +54,19 @@ impl<'l> Iterator for PointIter<'l> {
         match self.line.typ {
             LineType::Horizontal => {
                 self.cur.x += 1;
-                Some(self.cur)
+                if self.cur.x > self.line.b.x {
+                    None
+                } else {
+                    Some(self.cur)
+                }
             }
             LineType::Vertical => {
                 self.cur.y += 1;
-                Some(self.cur)
+                if self.cur.y > self.line.b.y {
+                    None
+                } else {
+                    Some(self.cur)
+                }
             }
             LineType::Angled => unimplemented!(),
         }
@@ -134,13 +142,35 @@ fn parse_input(input_text: &str) -> Vec<Line> {
         .collect()
 }
 
+fn process_all_nodes(lines: &[Line]) -> Vec<Point> {
+    let mut current_index = 1;
+    let mut crossing_points: Vec<Point> = vec![];
+    loop {
+        let (first_node, remaining) = lines.split_at(current_index);
+        let first_node = first_node.iter().last().unwrap();
+        let crosses: Vec<Point> = remaining
+            .iter()
+            .map(|l| l.crosses(&first_node))
+            .flatten()
+            .collect();
+        crossing_points.extend_from_slice(&crosses);
+        current_index += 1;
+        if current_index == lines.len() {
+            break;
+        }
+    }
+    crossing_points
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn part1() {
-        let input = dbg!(parse_input(INPUT));
+        let input = parse_input(INPUT);
+        let crossing_points = process_all_nodes(&input);
+        assert_eq!(5, crossing_points.len());
     }
 
     const INPUT: &str = r##"0,9 -> 5,9
