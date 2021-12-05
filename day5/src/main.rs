@@ -51,25 +51,23 @@ struct PointIter<'l> {
 impl<'l> Iterator for PointIter<'l> {
     type Item = Point;
     fn next(&mut self) -> Option<Self::Item> {
+        let mut ret_val = None;
         match self.line.typ {
             LineType::Horizontal => {
-                self.cur.x += 1;
-                if self.cur.x > self.line.b.x {
-                    None
-                } else {
-                    Some(self.cur)
+                if self.cur.x <= self.line.b.x {
+                    ret_val = Some(self.cur);
                 }
+                self.cur.x += 1;
             }
             LineType::Vertical => {
-                self.cur.y += 1;
-                if self.cur.y > self.line.b.y {
-                    None
-                } else {
-                    Some(self.cur)
+                if self.cur.y <= self.line.b.y {
+                    ret_val = Some(self.cur);
                 }
+                self.cur.y += 1;
             }
             LineType::Angled => unimplemented!(),
-        }
+        };
+        return ret_val;
     }
 }
 
