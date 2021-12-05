@@ -1,6 +1,14 @@
-use std::cmp::{Ordering, PartialOrd};
+use std::{
+    cmp::{Ordering, PartialOrd},
+    fs::read_to_string,
+};
 
-fn main() {}
+fn main() {
+    let text = read_to_string("day5/input.txt").unwrap();
+    let lines = parse_input(&text);
+    let crosses_count = process_all_nodes(&lines);
+    println!("crosses count: '{}'", crosses_count.len());
+}
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Point {
