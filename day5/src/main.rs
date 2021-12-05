@@ -101,13 +101,7 @@ impl Line {
             vec![]
         } else {
             self.points()
-                .filter_map(|sp| {
-                    if other.points().any(|op| op == sp) {
-                        Some(sp)
-                    } else {
-                        None
-                    }
-                })
+                .filter_map(|sp| other.points().find(|op| op == &sp))
                 .collect::<Vec<Point>>()
         }
     }
