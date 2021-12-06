@@ -6,8 +6,8 @@ use std::{
 fn main() {
     let text = read_to_string("day5/input.txt").unwrap();
     let lines = parse_input(&text);
-    let crosses_count = process_all_nodes(&lines);
-    println!("crosses count: '{}'", crosses_count.len());
+    let crosses_count = get_crossing_points_count(&lines);
+    println!("crosses count: '{}'", crosses_count);
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -20,6 +20,14 @@ impl Point {
     fn distance(&self) -> f32 {
         let sq_sum = self.x.pow(2) + self.y.pow(2);
         (sq_sum as f32).sqrt()
+    }
+
+    fn farthest_dimension(&self) -> usize {
+        if self.x > self.y {
+            self.x + 1
+        } else {
+            self.y + 1
+        }
     }
 }
 
@@ -79,6 +87,95 @@ impl<'l> Iterator for PointIter<'l> {
     }
 }
 
+type FillCount = usize;
+
+struct Canvas {
+    data: Vec<FillCount>,
+    side: usize,
+}
+
+struct Row<'r> {
+    canvas: &'r Canvas,
+    row_index: usize,
+    column_index: usize,
+}
+
+impl<'r> Iterator for Row<'r> {
+    type Item = FillCount;
+    fn next(&mut self) -> Option<Self::Item> {
+        let p = self
+            .canvas
+            .data
+            .get(self.column_index * self.canvas.side + self.row_index);
+        self.column_index += 1;
+        p.copied()
+    }
+}
+
+struct Column<'c> {
+    canvas: &'c Canvas,
+    row_index: usize,
+    column_index: usize,
+}
+
+impl<'c> Iterator for Column<'c> {
+    type Item = FillCount;
+    fn next(&mut self) -> Option<Self::Item> {
+        let p = self
+            .canvas
+            .data
+            .get(self.column_index * self.canvas.side + self.row_index);
+        self.row_index += 1;
+        p.copied()
+    }
+}
+
+impl Canvas {
+    fn mark_line(&mut self, line: &Line) {
+        line.points().for_each(|p| self.mark_point(&p));
+    }
+
+    fn mark_point(&mut self, point: &Point) {
+        let index = point.x + self.side * point.y;
+        self.data[index] += 1;
+    }
+
+    fn row(&self, row_index: usize) -> Row {
+        Row {
+            canvas: self,
+            row_index,
+            column_index: 0,
+        }
+    }
+
+    fn column(&self, column_index: usize) -> Column {
+        Column {
+            canvas: self,
+            row_index: 0,
+            column_index,
+        }
+    }
+
+    fn from_lines(lines: &[Line]) -> Self {
+        let side = lines.iter().fold(0, |max, l| {
+            let lf = l.farthest_dimension();
+            if max > lf {
+                max
+            } else {
+                lf
+            }
+        });
+        let data: Vec<FillCount> = std::iter::repeat(0).take(side.pow(2)).collect();
+        Self { data, side }
+    }
+
+    fn marks_count_larger(&self, than: FillCount) -> usize {
+        self.data
+            .iter()
+            .fold(0, |count, p| if *p > than { count + 1 } else { count })
+    }
+}
+
 impl Line {
     fn points(&self) -> PointIter {
         PointIter {
@@ -111,6 +208,16 @@ impl Line {
                 .collect::<Vec<Point>>()
         }
     }
+
+    fn farthest_dimension(&self) -> usize {
+        let a = self.a.farthest_dimension();
+        let b = self.b.farthest_dimension();
+        if a > b {
+            a
+        } else {
+            b
+        }
+    }
 }
 
 fn parse_input(input_text: &str) -> Vec<Line> {
@@ -140,7 +247,7 @@ fn parse_input(input_text: &str) -> Vec<Line> {
         .collect()
 }
 
-pub fn process_all_nodes(lines: &[Line]) -> Vec<Point> {
+pub fn _process_all_nodes(lines: &[Line]) -> Vec<Point> {
     let mut current_index = 1;
     let mut crossing_points: Vec<Point> = vec![];
     loop {
@@ -160,6 +267,15 @@ pub fn process_all_nodes(lines: &[Line]) -> Vec<Point> {
     crossing_points
 }
 
+pub fn get_crossing_points_count(lines: &[Line]) -> usize {
+    let mut canvas = Canvas::from_lines(lines);
+    for line in lines.iter().filter(|l| l.typ != LineType::Angled) {
+        canvas.mark_line(line);
+    }
+    let crossed_points = canvas.marks_count_larger(1);
+    crossed_points
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -167,8 +283,8 @@ mod tests {
     #[test]
     fn line_crosses() {
         let input = parse_input(INPUT);
-        let crossing_points = process_all_nodes(&input);
-        assert_eq!(5, crossing_points.len());
+        let crossing_points = get_crossing_points_count(&input);
+        assert_eq!(5, crossing_points);
     }
 
     const INPUT: &str = r##"0,9 -> 5,9
