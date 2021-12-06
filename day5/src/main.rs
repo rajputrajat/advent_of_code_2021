@@ -148,7 +148,13 @@ impl<'c> Iterator for Column<'c> {
 
 impl Canvas {
     fn mark_line(&mut self, line: &Line) {
-        line.points().for_each(|p| self.mark_point(&p));
+        line.points()
+            .inspect(|p| {
+                if line.typ == LineType::At45 {
+                    println!("{:?}", p)
+                }
+            })
+            .for_each(|p| self.mark_point(&p));
     }
 
     fn mark_point(&mut self, point: &Point) {
@@ -288,6 +294,7 @@ pub fn _process_all_nodes(lines: &[Line]) -> Vec<Point> {
 pub fn get_crossing_points_count(lines: &[Line], ignore: &[LineType]) -> usize {
     let mut canvas = Canvas::from_lines(lines);
     for line in lines.iter().filter(|l| !ignore.contains(&l.typ)) {
+        dbg!(line);
         canvas.mark_line(line);
     }
     let crossed_points = canvas.marks_count_larger(1);
@@ -310,7 +317,7 @@ mod tests {
     fn part2_line_crosses() {
         let input = parse_input(INPUT);
         let crossing_points = get_crossing_points_count(&input, &[LineType::Angled]);
-        assert_eq!(5, crossing_points);
+        assert_eq!(12, crossing_points);
     }
 
     const INPUT: &str = r##"0,9 -> 5,9
