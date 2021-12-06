@@ -2,91 +2,50 @@ use std::fs::read_to_string;
 
 fn main() {
     let input_str = read_to_string("day6/input.txt").unwrap();
-    println!(
-        "fish count after 80 days: '{}'",
-        fish_count_after_x_days(80, &input_str)
-    );
+    println!("fish count after 80 days: '{}'", {
+        let mut school = NewSchool::from_input(&input_str);
+        school.after(80);
+        school.count()
+    });
+    println!("fish count after 256 days: '{}'", {
+        let mut school = NewSchool::from_input(&input_str);
+        school.after(256);
+        school.count()
+    });
 }
 
 #[derive(Debug)]
-struct LanternFish {
-    days_untill_repro: usize,
-    status: FishStatus,
-}
+struct NewSchool([usize; 10]);
 
-#[derive(Clone, Copy, PartialEq, Debug)]
-enum FishStatus {
-    NewBorn,
-    RecentlyGaveBirth,
-    Normal,
-}
-
-impl LanternFish {
-    fn from_until_days(until: usize) -> Self {
-        Self {
-            days_untill_repro: until,
-            status: FishStatus::Normal,
-        }
+impl NewSchool {
+    fn from_input(input_text: &str) -> Self {
+        let mut school = NewSchool([0; 10]);
+        input_text
+            .trim()
+            .split(',')
+            .map(|c| c.parse::<usize>().unwrap())
+            .for_each(|n| school.0[n] += 1);
+        school
     }
 
-    fn born() -> Self {
-        Self {
-            days_untill_repro: 8,
-            status: FishStatus::NewBorn,
-        }
+    fn after(&mut self, days: usize) {
+        (0..days - 1).into_iter().for_each(|_| {
+            self.pass_a_day();
+        });
     }
 
     fn pass_a_day(&mut self) {
-        match self.status {
-            FishStatus::Normal => {
-                if self.days_untill_repro == 0 {
-                    self.days_untill_repro = 6;
-                    self.status = FishStatus::RecentlyGaveBirth;
-                } else {
-                    self.days_untill_repro -= 1;
-                    self.status = FishStatus::Normal;
-                }
-            }
-            FishStatus::NewBorn | FishStatus::RecentlyGaveBirth => {
-                self.days_untill_repro -= 1;
-                self.status = FishStatus::Normal;
-            }
+        self.0.rotate_left(1);
+        if self.0[0] > 0 {
+            self.0[7] += self.0[0];
+            self.0[9] += self.0[0];
+            self.0[0] = 0;
         }
     }
 
-    fn status(&self) -> FishStatus {
-        self.status
+    fn count(&self) -> usize {
+        self.0.iter().sum()
     }
-}
-
-struct School(Vec<LanternFish>);
-
-impl School {
-    fn pass_a_day(&mut self) {
-        let mut births = 0;
-        self.0.iter_mut().for_each(|f| {
-            f.pass_a_day();
-            if f.status() == FishStatus::RecentlyGaveBirth {
-                births += 1;
-            }
-        });
-        (0..births).into_iter().for_each(|_| {
-            self.0.push(LanternFish::born());
-        });
-    }
-}
-
-fn fish_count_after_x_days(days: usize, input_text: &str) -> usize {
-    let fishes: Vec<LanternFish> = input_text
-        .trim()
-        .split(',')
-        .map(|c| LanternFish::from_until_days(c.parse().unwrap()))
-        .collect();
-    let mut school = School(fishes);
-    (0..days).into_iter().for_each(|_| {
-        school.pass_a_day();
-    });
-    school.0.len()
 }
 
 #[cfg(test)]
@@ -95,12 +54,23 @@ mod tests {
 
     #[test]
     fn after_18_days() {
-        assert_eq!(26, fish_count_after_x_days(18, INPUT));
+        let mut school = NewSchool::from_input(INPUT);
+        school.after(18);
+        assert_eq!(26, school.count());
     }
 
     #[test]
     fn after_80_days() {
-        assert_eq!(5934, fish_count_after_x_days(80, INPUT));
+        let mut school = NewSchool::from_input(INPUT);
+        school.after(80);
+        assert_eq!(5934, school.count());
+    }
+
+    #[test]
+    fn after_256_days() {
+        let mut school = NewSchool::from_input(INPUT);
+        school.after(256);
+        assert_eq!(26984457539, school.count());
     }
 
     const INPUT: &str = r"3,4,3,1,2";
