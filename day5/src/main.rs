@@ -83,11 +83,19 @@ impl<'l> Iterator for PointIter<'l> {
                 self.cur.y += 1;
             }
             LineType::At45 => {
-                if self.cur.x <= self.line.b.x {
+                if self.cur.x == self.line.b.x && self.cur.y == self.line.b.y {
                     ret_val = Some(self.cur);
                 }
-                self.cur.x += 1;
-                self.cur.y += 1;
+                if self.line.b.y > self.line.a.y {
+                    self.cur.y += 1;
+                } else {
+                    self.cur.y -= 1;
+                }
+                if self.line.b.x > self.line.a.x {
+                    self.cur.x += 1;
+                } else {
+                    self.cur.x -= 1;
+                }
             }
             LineType::Angled => unimplemented!(),
         };
