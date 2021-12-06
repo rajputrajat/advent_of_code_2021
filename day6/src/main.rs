@@ -1,5 +1,11 @@
+use std::fs::read_to_string;
+
 fn main() {
-    println!("Hello, world!");
+    let input_str = read_to_string("day6/input.txt").unwrap();
+    println!(
+        "fish count after 80 days: '{}'",
+        fish_count_after_x_days(80, &input_str)
+    );
 }
 
 #[derive(Debug)]
@@ -72,6 +78,7 @@ impl School {
 
 fn fish_count_after_x_days(days: usize, input_text: &str) -> usize {
     let fishes: Vec<LanternFish> = input_text
+        .trim()
         .split(',')
         .map(|c| LanternFish::from_until_days(c.parse().unwrap()))
         .collect();
