@@ -6,14 +6,14 @@ use std::{
 fn main() {
     let text = read_to_string("day5/input.txt").unwrap();
     let lines = parse_input(&text);
-    let crosses_count = get_crossing_points_count(&lines);
-    println!("crosses count: '{}'", crosses_count);
+    //let crosses_count = get_crossing_points_count(&lines);
+    //println!("crosses count: '{}'", crosses_count);
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Point {
-    x: usize,
-    y: usize,
+    x: isize,
+    y: isize,
 }
 
 impl Point {
@@ -22,7 +22,7 @@ impl Point {
         (sq_sum as f32).sqrt()
     }
 
-    fn farthest_dimension(&self) -> usize {
+    fn farthest_dimension(&self) -> isize {
         if self.x > self.y {
             self.x + 1
         } else {
@@ -46,9 +46,10 @@ impl PartialOrd for Point {
 }
 
 #[derive(Debug, PartialEq)]
-enum LineType {
+pub enum LineType {
     Horizontal,
     Vertical,
+    At45,
     Angled,
 }
 
@@ -81,13 +82,20 @@ impl<'l> Iterator for PointIter<'l> {
                 }
                 self.cur.y += 1;
             }
+            LineType::At45 => {
+                if self.cur.x <= self.line.b.x {
+                    ret_val = Some(self.cur);
+                }
+                self.cur.x += 1;
+                self.cur.y += 1;
+            }
             LineType::Angled => unimplemented!(),
         };
         return ret_val;
     }
 }
 
-type FillCount = usize;
+type FillCount = isize;
 
 struct Canvas {
     data: Vec<FillCount>,
@@ -136,8 +144,8 @@ impl Canvas {
     }
 
     fn mark_point(&mut self, point: &Point) {
-        let index = point.x + self.side * point.y;
-        self.data[index] += 1;
+        let index = point.x + self.side as isize * point.y;
+        self.data[index as usize] += 1;
     }
 
     fn row(&self, row_index: usize) -> Row {
@@ -164,7 +172,7 @@ impl Canvas {
             } else {
                 lf
             }
-        });
+        }) as usize;
         let data: Vec<FillCount> = std::iter::repeat(0).take(side.pow(2)).collect();
         Self { data, side }
     }
@@ -193,6 +201,8 @@ impl Line {
                 LineType::Vertical
             } else if a.y == b.y {
                 LineType::Horizontal
+            } else if (a.x - b.x).abs() == (a.y - b.y).abs() {
+                LineType::At45
             } else {
                 LineType::Angled
             },
@@ -209,7 +219,7 @@ impl Line {
         }
     }
 
-    fn farthest_dimension(&self) -> usize {
+    fn farthest_dimension(&self) -> isize {
         let a = self.a.farthest_dimension();
         let b = self.b.farthest_dimension();
         if a > b {
@@ -227,7 +237,7 @@ fn parse_input(input_text: &str) -> Vec<Line> {
             if l.is_empty() {
                 None
             } else {
-                let nums: Vec<usize> = l
+                let nums: Vec<isize> = l
                     .split(&[' ', ',', '-', '>'][..])
                     .filter_map(|s| s.to_string().parse().ok())
                     .collect();
@@ -267,9 +277,9 @@ pub fn _process_all_nodes(lines: &[Line]) -> Vec<Point> {
     crossing_points
 }
 
-pub fn get_crossing_points_count(lines: &[Line]) -> usize {
+pub fn get_crossing_points_count(lines: &[Line], ignore: &[LineType]) -> usize {
     let mut canvas = Canvas::from_lines(lines);
-    for line in lines.iter().filter(|l| l.typ != LineType::Angled) {
+    for line in lines.iter().filter(|l| !ignore.contains(&l.typ)) {
         canvas.mark_line(line);
     }
     let crossed_points = canvas.marks_count_larger(1);
@@ -281,9 +291,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn line_crosses() {
+    fn part1_line_crosses() {
         let input = parse_input(INPUT);
-        let crossing_points = get_crossing_points_count(&input);
+        let crossing_points =
+            get_crossing_points_count(&input, &[LineType::At45, LineType::Angled]);
+        assert_eq!(5, crossing_points);
+    }
+
+    #[test]
+    fn part2_line_crosses() {
+        let input = parse_input(INPUT);
+        let crossing_points = get_crossing_points_count(&input, &[LineType::Angled]);
         assert_eq!(5, crossing_points);
     }
 
