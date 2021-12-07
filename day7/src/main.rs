@@ -39,10 +39,9 @@ impl Crabs {
     }
 
     fn get_diff_sum<F: Fn(&i32) -> i32>(&self, diff: i32, differ: F) -> u32 {
-        //let differ = |d: i32| d * (d + 1) / 2;
         self.0
             .iter()
-            .map(|&(num, count)| (num as i32 - differ(&diff)).abs() as u32 * count)
+            .map(|&(num, count)| differ(&(num as i32 - diff).abs()) as u32 * count)
             .sum()
     }
 
@@ -83,6 +82,12 @@ mod tests {
     fn day7_part1() {
         let crabs = Crabs::from_text(INPUT);
         assert_eq!(37, crabs.get_min(|a| *a));
+    }
+
+    #[test]
+    fn day7_part2() {
+        let crabs = Crabs::from_text(INPUT);
+        assert_eq!(168, crabs.get_min(|&a| a * (a + 1) / 2));
     }
 
     const INPUT: &str = "16,1,2,0,4,2,7,1,2,14";
