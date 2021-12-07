@@ -7,31 +7,53 @@ fn main() {
     println!("part1, answer: '{}'", crabs.get_min());
 }
 
-struct Crabs(Vec<isize>);
+#[derive(Debug)]
+struct Crabs(Vec<(u32, u32)>);
 
 impl Crabs {
     fn from_text(input_text: &str) -> Self {
-        Self(
-            input_text
-                .trim()
-                .split(',')
-                .map(|s| s.parse().unwrap())
-                .collect(),
-        )
+        let mut input: Vec<u32> = input_text
+            .trim()
+            .split(',')
+            .map(|s| s.parse().unwrap())
+            .collect();
+        input.sort();
+        let mut cur = input.first().unwrap();
+        let mut cur_count: u32 = 0;
+        let mut crabs: Vec<(u32, u32)> = input
+            .iter()
+            .filter_map(|n| {
+                if n == cur {
+                    cur_count += 1;
+                    None
+                } else {
+                    let ret = (*cur, cur_count);
+                    cur_count = 1;
+                    cur = n;
+                    Some(ret)
+                }
+            })
+            .collect();
+        crabs.push((*cur, cur_count));
+        Self(crabs)
     }
 
-    fn get_diff_sum(&self, diff: isize) -> isize {
-        self.0.iter().map(|&n| (n - diff).abs()).sum()
+    fn get_diff_sum(&self, diff: i32) -> u32 {
+        self.0
+            .iter()
+            .map(|&(num, count)| (num as i32 - diff).abs() as u32 * count)
+            .sum()
     }
 
-    fn get_min(&self) -> isize {
-        let avg = self.0.iter().sum::<isize>() / self.0.len() as isize;
+    fn get_min(&self) -> u32 {
+        let avg = (self.0.iter().map(|(num, count)| num * count).sum::<u32>() / self.0.len() as u32)
+            as i32;
         let one_less = self.get_diff_sum(avg - 1);
         let at_avg = self.get_diff_sum(avg);
-        let mut min = isize::MAX;
+        let mut min = u32::MAX;
         if one_less < at_avg {
-            (0..one_less as usize).into_iter().rev().for_each(|num| {
-                let sum = self.get_diff_sum(num as isize);
+            (0..one_less as u32).into_iter().rev().for_each(|num| {
+                let sum = self.get_diff_sum(num as i32);
                 if sum < min {
                     min = sum;
                 } else {
@@ -39,8 +61,8 @@ impl Crabs {
                 }
             });
         } else {
-            (at_avg as usize..).into_iter().for_each(|num| {
-                let sum = self.get_diff_sum(num as isize);
+            (at_avg as u32..).into_iter().for_each(|num| {
+                let sum = self.get_diff_sum(num as i32);
                 if sum < min {
                     min = sum;
                 } else {
@@ -58,8 +80,7 @@ mod tests {
 
     #[test]
     fn day7_part1() {
-        let mut crabs = Crabs::from_text(INPUT);
-        crabs.0.sort();
+        let crabs = Crabs::from_text(INPUT);
         assert_eq!(37, crabs.get_min());
     }
 
