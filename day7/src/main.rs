@@ -4,14 +4,7 @@ fn main() {
     let input = read_to_string("day7/input.txt").unwrap();
     let mut crabs = Crabs::from_text(&input);
     crabs.0.sort();
-    let mut min_diff_sum = isize::MIN;
-    // println!("{:?}", parsed);
-    // let avg = parsed.iter().sum::<isize>() / parsed.len() as isize;
-    // (0..200).into_iter().for_each(|n| {
-    //     let num = avg - n;
-    //     println!("for '{}': {}", &num, get_diff_sum(num, &parsed));
-    // });
-    // println!("{}, {}", parsed.len(), parsed.iter().sum::<isize>());
+    println!("part1, answer: '{}'", crabs.get_min());
 }
 
 struct Crabs(Vec<isize>);
@@ -41,6 +34,8 @@ impl Crabs {
                 let sum = self.get_diff_sum(num as isize);
                 if sum < min {
                     min = sum;
+                } else {
+                    return;
                 }
             });
         } else {
@@ -48,6 +43,8 @@ impl Crabs {
                 let sum = self.get_diff_sum(num as isize);
                 if sum < min {
                     min = sum;
+                } else {
+                    return;
                 }
             });
         }
