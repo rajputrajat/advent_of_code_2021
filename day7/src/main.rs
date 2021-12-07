@@ -2,25 +2,25 @@ use std::fs::read_to_string;
 
 fn main() {
     let input = read_to_string("day7/input.txt").unwrap();
-    let mut crabs = Crabs::from_text(&input);
-    crabs.0.sort();
+    let crabs = Crabs::from_text(&input);
     println!("part1, answer: '{}'", crabs.get_min(|a| *a));
+    println!("part2, answer: '{}'", crabs.get_min(|&a| a * (a + 1) / 2));
 }
 
 #[derive(Debug)]
-struct Crabs(Vec<(u32, u32)>);
+struct Crabs(Vec<(usize, usize)>);
 
 impl Crabs {
     fn from_text(input_text: &str) -> Self {
-        let mut input: Vec<u32> = input_text
+        let mut input: Vec<usize> = input_text
             .trim()
             .split(',')
             .map(|s| s.parse().unwrap())
             .collect();
         input.sort();
         let mut cur = input.first().unwrap();
-        let mut cur_count: u32 = 0;
-        let mut crabs: Vec<(u32, u32)> = input
+        let mut cur_count: usize = 0;
+        let mut crabs: Vec<(usize, usize)> = input
             .iter()
             .filter_map(|n| {
                 if n == cur {
@@ -38,38 +38,23 @@ impl Crabs {
         Self(crabs)
     }
 
-    fn get_diff_sum<F: Fn(&i32) -> i32>(&self, diff: i32, differ: F) -> u32 {
+    fn get_diff_sum<F: Fn(&isize) -> isize>(&self, diff: isize, differ: F) -> usize {
         self.0
             .iter()
-            .map(|&(num, count)| differ(&(num as i32 - diff).abs()) as u32 * count)
+            .map(|&(num, count)| differ(&(num as isize - diff).abs()) as usize * count)
             .sum()
     }
 
-    fn get_min<F: Fn(&i32) -> i32 + Copy>(&self, differ: F) -> u32 {
-        let avg = (self.0.iter().map(|(num, count)| num * count).sum::<u32>() / self.0.len() as u32)
-            as i32;
-        let one_less = self.get_diff_sum(avg - 1, differ);
-        let at_avg = self.get_diff_sum(avg, differ);
-        let mut min = u32::MAX;
-        if one_less < at_avg {
-            (0..one_less as u32).into_iter().rev().for_each(|num| {
-                let sum = self.get_diff_sum(num as i32, differ);
-                if sum < min {
-                    min = sum;
-                } else {
-                    return;
-                }
-            });
-        } else {
-            (at_avg as u32..).into_iter().for_each(|num| {
-                let sum = self.get_diff_sum(num as i32, differ);
-                if sum < min {
-                    min = sum;
-                } else {
-                    return;
-                }
-            });
-        }
+    fn get_min<F: Fn(&isize) -> isize + Copy>(&self, differ: F) -> usize {
+        let mut min = usize::MAX;
+        (0..self.0.len()).into_iter().for_each(|num| {
+            let sum = self.get_diff_sum(num as isize, differ);
+            if sum < min {
+                min = sum;
+            } else {
+                return;
+            }
+        });
         min
     }
 }
