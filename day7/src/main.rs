@@ -17,7 +17,7 @@ impl Crabs {
             .split(',')
             .map(|s| s.parse().unwrap())
             .collect();
-        input.sort();
+        input.sort_unstable();
         let mut cur = input.first().unwrap();
         let mut cur_count: usize = 0;
         let mut crabs: Vec<(usize, usize)> = input
@@ -51,8 +51,6 @@ impl Crabs {
             let sum = self.get_diff_sum(num as isize, differ);
             if sum < min {
                 min = sum;
-            } else {
-                return;
             }
         });
         min
