@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, slice::SliceIndex};
+use std::fs::read_to_string;
 
 fn main() {
     let text_input = read_to_string("day9/input.txt").unwrap();
@@ -137,13 +137,7 @@ impl HeightMap {
         self.points
             .iter()
             .flatten()
-            .filter_map(|p| {
-                if p.lowest.unwrap() == Location::Centre {
-                    Some(p)
-                } else {
-                    None
-                }
-            })
+            .filter(|p| p.lowest.unwrap() == Location::Centre)
             .collect()
     }
 
