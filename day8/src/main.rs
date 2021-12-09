@@ -22,7 +22,6 @@ fn parse_input(input_text: &str) -> Vec<(Vec<String>, Vec<String>)> {
 }
 
 enum Digit {
-    Zero,
     One,
     Two,
     Three,
@@ -48,6 +47,26 @@ impl FromStr for Digit {
     }
 }
 
+// fn identify() {
+//     const TEST: [&str; 10] = [
+//         "acedgfb", "cdfbe", "gcdfa", "fbcad", "dab", "cefabd", "cdfgeb", "eafb", "cagedb", "ab",
+//     ];
+//     // one, two, three, four, five, six, seven
+//     let str_sub = |left: &str, right: &str| {
+//         let res: String = left
+//             .chars()
+//             .filter_map(|c| if right.contains(c) { None } else { Some(c) })
+//             .collect::<String>();
+//         println!("{} - {} = {:?}", left, right, res);
+//         res
+//     };
+//     let one = str_sub("dab", "ab");
+//     let three = str_sub("ab", "gcdfa");
+//     let five = str_sub("ab", &three);
+//     let (two_num, five_num) = if "cdfbe".contains(five) {
+//     }
+// }
+
 fn get_identified_digit_count(input: &[(Vec<String>, Vec<String>)]) -> usize {
     input
         .iter()
@@ -72,6 +91,7 @@ mod tests {
     fn day8_part1() {
         let parsed_input = parse_input(INPUT);
         assert_eq!(26, get_identified_digit_count(&parsed_input));
+        //identify();
     }
 
     const INPUT: &str = r##"be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
