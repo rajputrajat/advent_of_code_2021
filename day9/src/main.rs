@@ -3,10 +3,7 @@ use std::fs::read_to_string;
 fn main() {
     let text_input = read_to_string("day9/input.txt").unwrap();
     let mut height_map = HeightMap::parse_input(&text_input);
-    let sum = height_map
-        .get_lowest_points()
-        .iter()
-        .fold(0, |acc, p| acc + p.digit + 1);
+    let sum = height_map.get_sum_lowest_points();
     println!("part1 result: '{}'", sum);
 }
 
@@ -151,6 +148,14 @@ impl HeightMap {
             })
             .collect()
     }
+
+    fn get_sum_lowest_points(&mut self) -> usize {
+        let sum = self
+            .get_lowest_points()
+            .iter()
+            .fold(0, |acc, p| acc + p.digit as usize + 1);
+        sum
+    }
 }
 
 #[cfg(test)]
@@ -160,11 +165,7 @@ mod tests {
     #[test]
     fn day9_part1() {
         let mut map = HeightMap::parse_input(INPUT);
-        let risk_levels = map
-            .get_lowest_points()
-            .iter()
-            .fold(0, |acc, p| acc + p.digit + 1);
-        assert_eq!(15, risk_levels);
+        assert_eq!(15, map.get_sum_lowest_points());
     }
 
     const INPUT: &str = r##"2199943210
