@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 fn main() {}
 
 fn parse_input(input_text: &str) -> Vec<(Vec<String>, Vec<String>)> {
@@ -26,13 +28,57 @@ fn parse_input(input_text: &str) -> Vec<(Vec<String>, Vec<String>)> {
     ret
 }
 
+enum Digit {
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+}
+
+impl FromStr for Digit {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.len() {
+            2 => Ok(Digit::One),
+            4 => Ok(Digit::Four),
+            3 => Ok(Digit::Seven),
+            7 => Ok(Digit::Eight),
+            _ => Err(format!("unidentified segment: '{}'", s)),
+        }
+    }
+}
+
+fn get_identified_digit_count(input: &[(Vec<String>, Vec<String>)]) -> usize {
+    input
+        .iter()
+        .map(|(_, v)| {
+            let sum_of_digits = v.iter().fold(0, |dig_sum, s| {
+                if s.parse::<Digit>().is_ok() {
+                    dig_sum + 1
+                } else {
+                    dig_sum
+                }
+            });
+            sum_of_digits
+        })
+        .sum::<usize>()
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::parse_input;
+    use crate::{get_identified_digit_count, parse_input};
 
     #[test]
     fn day8_part1() {
-        dbg!(parse_input(INPUT));
+        let parsed_input = parse_input(INPUT);
+        assert_eq!(26, get_identified_digit_count(&parsed_input));
     }
 
     const INPUT: &str = r##"be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb |
