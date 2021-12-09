@@ -132,7 +132,7 @@ impl HeightMap {
         self.points.get(index as usize)
     }
 
-    fn get_lowest_points(&mut self) -> Vec<Point> {
+    fn get_lowest_points(&mut self) -> Vec<&Point> {
         let map_clone = self.clone();
         self.points
             .iter_mut()
@@ -141,7 +141,7 @@ impl HeightMap {
             .iter()
             .filter_map(|p| {
                 if p.lowest.unwrap() == Location::Centre {
-                    Some(*p)
+                    Some(p)
                 } else {
                     None
                 }
