@@ -31,7 +31,7 @@ impl Index {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Location {
     Centre,
     Up,
@@ -52,13 +52,13 @@ impl Point {
         map.get_point(self.index.up()).copied()
     }
     fn down(&self, map: &HeightMap) -> Option<Self> {
-        map.get_point(self.index.up()).copied()
+        map.get_point(self.index.down()).copied()
     }
     fn left(&self, map: &HeightMap) -> Option<Self> {
-        map.get_point(self.index.up()).copied()
+        map.get_point(self.index.left()).copied()
     }
     fn right(&self, map: &HeightMap) -> Option<Self> {
-        map.get_point(self.index.up()).copied()
+        map.get_point(self.index.right()).copied()
     }
     fn set_adjacent_lowest(&mut self, map: &HeightMap) {
         let mut lowest = (Location::Centre, self.digit);
@@ -86,6 +86,7 @@ impl Point {
     }
 }
 
+#[derive(Debug, Clone)]
 struct HeightMap {
     points: Vec<Point>,
     width: i16,
@@ -115,7 +116,7 @@ impl HeightMap {
         let height = nums.len() as i16;
         let width = nums.first().unwrap().len() as i16;
         Self {
-            points: nums.iter().flatten().collect(),
+            points: nums.iter().flatten().map(|p| p.clone()).collect(),
             width,
             height,
         }
@@ -125,6 +126,23 @@ impl HeightMap {
         let index = index.y * self.width + index.x;
         self.points.get(index as usize)
     }
+
+    fn get_lowest_points(&mut self) -> Vec<Point> {
+        let map_clone = self.clone();
+        self.points
+            .iter_mut()
+            .for_each(|p| p.set_adjacent_lowest(&map_clone));
+        self.points
+            .iter()
+            .filter_map(|p| {
+                if p.lowest.unwrap() == Location::Centre {
+                    Some(*p)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]
@@ -132,7 +150,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn day9_part1() {}
+    fn day9_part1() {
+        let mut map = HeightMap::parse_input(INPUT);
+        let risk_levels = map
+            .get_lowest_points()
+            .iter()
+            .fold(0, |acc, p| acc + p.digit + 1);
+        assert_eq!(15, risk_levels);
+    }
 
     const INPUT: &str = r##"2199943210
 3987894921
