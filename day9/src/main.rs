@@ -12,8 +12,8 @@ fn main() {
 
 #[derive(Debug, Clone, Copy)]
 struct Index {
-    x: i16,
-    y: i16,
+    x: isize,
+    y: isize,
 }
 
 impl Index {
@@ -97,8 +97,8 @@ impl Point {
 #[derive(Debug, Clone)]
 struct HeightMap {
     points: Vec<Point>,
-    width: i16,
-    height: i16,
+    width: isize,
+    height: isize,
 }
 
 impl HeightMap {
@@ -113,16 +113,16 @@ impl HeightMap {
                     .map(|(x, c)| Point {
                         digit: c.to_string().parse().unwrap(),
                         index: Index {
-                            x: x as i16,
-                            y: y as i16,
+                            x: x as isize,
+                            y: y as isize,
                         },
                         lowest: None,
                     })
                     .collect()
             })
             .collect();
-        let height = nums.len() as i16;
-        let width = nums.first().unwrap().len() as i16;
+        let height = nums.len() as isize;
+        let width = nums.first().unwrap().len() as isize;
         Self {
             points: nums.iter().flatten().map(|p| p.clone()).collect(),
             width,
