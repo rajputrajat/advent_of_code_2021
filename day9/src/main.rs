@@ -1,4 +1,4 @@
-use std::fs::read_to_string;
+use std::{fs::read_to_string, slice::SliceIndex};
 
 fn main() {
     let text_input = read_to_string("day9/input.txt").unwrap();
@@ -94,9 +94,7 @@ impl Point {
 
 #[derive(Debug, Clone)]
 struct HeightMap {
-    points: Vec<Point>,
-    width: isize,
-    height: isize,
+    points: Vec<Vec<Point>>,
 }
 
 impl HeightMap {
@@ -119,27 +117,26 @@ impl HeightMap {
                     .collect()
             })
             .collect();
-        let height = nums.len() as isize;
-        let width = nums.first().unwrap().len() as isize;
-        Self {
-            points: nums.iter().flatten().map(|p| p.clone()).collect(),
-            width,
-            height,
-        }
+        Self { points: nums }
     }
 
     fn get_point(&self, index: Index) -> Option<&Point> {
-        let index = index.y * self.width + index.x;
-        self.points.get(index as usize)
+        if let Some(py) = self.points.get(index.y as usize) {
+            py.get(index.x as usize)
+        } else {
+            None
+        }
     }
 
     fn get_lowest_points(&mut self) -> Vec<&Point> {
         let map_clone = self.clone();
-        self.points
-            .iter_mut()
-            .for_each(|p| p.set_adjacent_lowest(&map_clone));
+        self.points.iter_mut().for_each(|vp| {
+            vp.iter_mut()
+                .for_each(|p| p.set_adjacent_lowest(&map_clone))
+        });
         self.points
             .iter()
+            .flatten()
             .filter_map(|p| {
                 if p.lowest.unwrap() == Location::Centre {
                     Some(p)
