@@ -1,18 +1,29 @@
 fn main() {}
 
-fn parse_input(input_text: &str) -> Vec<([&str; 10], [&str; 4])> {
-    input_text
+fn parse_input(input_text: &str) -> Vec<(Vec<String>, Vec<String>)> {
+    let lines: Vec<Vec<String>> = input_text
         .trim()
         .lines()
         .map(|l| {
-            let vstr = l
+            let vstr: Vec<String> = l
                 .split_whitespace()
-                .filter_map(|s| if s == "|" { None } else { Some(s) })
+                .filter_map(|s| if s == "|" { None } else { Some(s.to_owned()) })
                 .collect();
-            assert_eq!(vstr.len() == 10 + 4);
-            (vstr[0..10], vstr[10..14])
+            assert!(vstr.len() == 10 || vstr.len() == 4);
+            vstr
         })
-        .collect()
+        .collect();
+    let ret: Vec<(Vec<String>, Vec<String>)> = lines
+        .chunks_exact(2)
+        .map(|w| {
+            let a = &w[0];
+            assert_eq!(10, a.len());
+            let b = &w[1];
+            assert_eq!(4, b.len());
+            (a.clone(), b.clone())
+        })
+        .collect();
+    ret
 }
 
 #[cfg(test)]
@@ -20,7 +31,7 @@ mod tests {
     use crate::parse_input;
 
     #[test]
-    fn day9_part1() {
+    fn day8_part1() {
         dbg!(parse_input(INPUT));
     }
 
