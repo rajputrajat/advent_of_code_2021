@@ -1,5 +1,13 @@
+use std::fs::read_to_string;
+
 fn main() {
-    println!("Hello, world!");
+    let text_input = read_to_string("day9/input.txt").unwrap();
+    let mut height_map = HeightMap::parse_input(&text_input);
+    let sum = height_map
+        .get_lowest_points()
+        .iter()
+        .fold(0, |acc, p| acc + p.digit + 1);
+    println!("part1 result: '{}'", sum);
 }
 
 #[derive(Debug, Clone, Copy)]
