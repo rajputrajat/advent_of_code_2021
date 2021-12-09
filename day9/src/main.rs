@@ -150,11 +150,9 @@ impl HeightMap {
     }
 
     fn get_sum_lowest_points(&mut self) -> usize {
-        let sum = self
-            .get_lowest_points()
+        self.get_lowest_points()
             .iter()
-            .fold(0, |acc, p| acc + p.digit as usize + 1);
-        sum
+            .fold(0, |acc, p| acc + p.digit as usize + 1)
     }
 }
 
