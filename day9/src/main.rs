@@ -2,9 +2,10 @@ use std::fs::read_to_string;
 
 fn main() {
     let text_input = read_to_string("day9/input.txt").unwrap();
-    let mut height_map = HeightMap::parse_input(&text_input);
-    let sum = height_map.get_sum_lowest_points();
-    println!("part1 result: '{}'", sum);
+    println!("part1 result: '{}'", {
+        let mut height_map = HeightMap::parse_input(&text_input);
+        height_map.get_sum_lowest_points()
+    });
 }
 
 #[derive(Debug, Clone, Copy)]
