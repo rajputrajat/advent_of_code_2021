@@ -27,18 +27,13 @@ fn find_syntax_error_score(input_text: &str) -> usize {
             match c {
                 '[' | '(' | '{' | '<' => stack.push_back(SymbolType::Opening(c)),
                 ']' | ')' | '}' | '>' => {
-                    if let Some(popped) = stack.pop_back() {
-                        match popped {
-                            SymbolType::Opening(p) => {
-                                let closing_variant = pairs.get(&p).unwrap();
-                                if closing_variant == &c {
-                                    continue 'chars;
-                                } else {
-                                    errors.push(c);
-                                    break 'chars;
-                                }
-                            }
-                            _ => {}
+                    if let Some(SymbolType::Opening(popped)) = stack.pop_back() {
+                        let closing_variant = pairs.get(&popped).unwrap();
+                        if closing_variant == &c {
+                            continue 'chars;
+                        } else {
+                            errors.push(c);
+                            break 'chars;
                         }
                     }
                 }
@@ -60,17 +55,12 @@ fn find_middle_scope_incomplete(input_text: &str) -> usize {
             match c {
                 '[' | '(' | '{' | '<' => stack.push_back(SymbolType::Opening(c)),
                 ']' | ')' | '}' | '>' => {
-                    if let Some(popped) = stack.pop_back() {
-                        match popped {
-                            SymbolType::Opening(p) => {
-                                let closing_variant = pairs.get(&p).unwrap();
-                                if closing_variant == &c {
-                                    continue 'chars;
-                                } else {
-                                    continue 'line;
-                                }
-                            }
-                            _ => {}
+                    if let Some(SymbolType::Opening(popped)) = stack.pop_back() {
+                        let closing_variant = pairs.get(&popped).unwrap();
+                        if closing_variant == &c {
+                            continue 'chars;
+                        } else {
+                            continue 'line;
                         }
                     }
                 }
@@ -89,8 +79,8 @@ fn find_middle_scope_incomplete(input_text: &str) -> usize {
             });
         errors.push(score);
     }
-    errors.sort();
-    errors.iter().nth(errors.len() / 2).copied().unwrap()
+    errors.sort_unstable();
+    errors.get(errors.len() / 2).copied().unwrap()
 }
 
 #[cfg(test)]
