@@ -4,7 +4,9 @@ fn main() {
     let text_input = read_to_string("day9/input.txt").unwrap();
     println!("part1 result: '{}'", {
         let mut height_map = HeightMap::parse_input(&text_input);
-        height_map.get_sum_lowest_points()
+        let sum = height_map.get_sum_lowest_points();
+
+        sum
     });
 }
 
