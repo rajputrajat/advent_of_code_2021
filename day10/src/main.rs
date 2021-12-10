@@ -6,6 +6,10 @@ use std::{
 fn main() {
     let input_text = read_to_string("day10/input.txt").unwrap();
     println!("part1 answer: {}", find_syntax_error_score(&input_text));
+    println!(
+        "part2 answer: {}",
+        find_middle_scope_incomplete(&input_text)
+    );
 }
 
 #[derive(Debug, PartialEq)]
@@ -50,13 +54,25 @@ fn find_middle_scope_incomplete(input_text: &str) -> usize {
     let mut errors: Vec<usize> = Vec::new();
     let pairs = HashMap::from([('[', ']'), ('{', '}'), ('(', ')'), ('<', '>')]);
     let map: HashMap<char, usize> = HashMap::from([(')', 1), (']', 2), ('}', 3), ('>', 4)]);
-    for line in input_text.lines() {
+    'line: for line in input_text.lines() {
         let mut stack: VecDeque<SymbolType> = VecDeque::new();
-        for c in line.chars() {
+        'chars: for c in line.chars() {
             match c {
                 '[' | '(' | '{' | '<' => stack.push_back(SymbolType::Opening(c)),
                 ']' | ')' | '}' | '>' => {
-                    let _ = stack.pop_back();
+                    if let Some(popped) = stack.pop_back() {
+                        match popped {
+                            SymbolType::Opening(p) => {
+                                let closing_variant = pairs.get(&p).unwrap();
+                                if closing_variant == &c {
+                                    continue 'chars;
+                                } else {
+                                    continue 'line;
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
                 }
                 _ => unimplemented!(),
             };
