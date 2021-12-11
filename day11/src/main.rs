@@ -1,4 +1,11 @@
-fn main() {}
+use std::fs::read_to_string;
+
+fn main() {
+    let input = parse_input(&read_to_string("day11/input.txt").unwrap());
+    println!("answer of part1 is '{}'", {
+        flashes_count_after_100_steps(input.clone())
+    });
+}
 
 const WINDOW: &[(i8, i8); 8] = &[
     (-1, -1),
