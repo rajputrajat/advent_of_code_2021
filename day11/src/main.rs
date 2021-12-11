@@ -3,7 +3,7 @@ use std::fs::read_to_string;
 fn main() {
     let input = parse_input(&read_to_string("day11/input.txt").unwrap());
     println!("answer of part1 is '{}'", {
-        flashes_count_after_100_steps(input.clone())
+        flashes_count_after_100_steps(&mut input.clone())
     });
 }
 
@@ -18,55 +18,59 @@ const WINDOW: &[(i8, i8); 8] = &[
     (1, 1),
 ];
 
-fn flashes_count_after_100_steps(mut initial_energy_level: Vec<Vec<u8>>) -> usize {
-    let mut flash_counts = 0;
-    for _ in 0..100 {
-        for line in initial_energy_level.iter_mut() {
-            for oct in line.iter_mut() {
-                *oct += 1;
-            }
+fn flash(initial_energy_level: &mut Vec<Vec<u8>>, flash_counts: &mut usize) {
+    for line in initial_energy_level.iter_mut() {
+        for oct in line.iter_mut() {
+            *oct += 1;
         }
-        let mut flash_abs: Vec<(i8, i8)> = Vec::new();
-        loop {
-            let mut flash_indices: Vec<(i8, i8)> = Vec::new();
-            for (il, line) in initial_energy_level.iter().enumerate() {
-                for (io, oct) in line.iter().enumerate() {
-                    if *oct > 9 {
-                        flash_indices.push((io as i8, il as i8));
-                        flash_counts += 1;
-                    }
+    }
+    let mut flash_abs: Vec<(i8, i8)> = Vec::new();
+    loop {
+        let mut flash_indices: Vec<(i8, i8)> = Vec::new();
+        for (il, line) in initial_energy_level.iter().enumerate() {
+            for (io, oct) in line.iter().enumerate() {
+                if *oct > 9 {
+                    flash_indices.push((io as i8, il as i8));
+                    *flash_counts += 1;
                 }
             }
-            flash_abs.extend(&flash_indices);
-            if flash_indices.is_empty() {
-                break;
-            } else {
-                flash_indices.iter().for_each(|(i, j)| {
-                    initial_energy_level[*j as usize][*i as usize] = 0;
-                    WINDOW
-                        .iter()
-                        .filter_map(|(i_offset, j_offset)| {
-                            let i_added = i + i_offset;
-                            let j_added = j + j_offset;
-                            if j_added >= 0 && i_added >= 0 {
-                                if !flash_abs.contains(&(i_added, j_added)) {
-                                    return Some((i_added, j_added));
-                                }
-                            }
-                            return None;
-                        })
-                        .for_each(|(i, j)| {
-                            if let Some(val) = initial_energy_level
-                                .get_mut(j as usize)
-                                .and_then(|inner| inner.get_mut(i as usize))
-                            {
-                                *val += 1;
-                            }
-                        });
-                });
-            }
-            flash_indices.clear();
         }
+        flash_abs.extend(&flash_indices);
+        if flash_indices.is_empty() {
+            break;
+        } else {
+            flash_indices.iter().for_each(|(i, j)| {
+                initial_energy_level[*j as usize][*i as usize] = 0;
+                WINDOW
+                    .iter()
+                    .filter_map(|(i_offset, j_offset)| {
+                        let i_added = i + i_offset;
+                        let j_added = j + j_offset;
+                        if j_added >= 0 && i_added >= 0 {
+                            if !flash_abs.contains(&(i_added, j_added)) {
+                                return Some((i_added, j_added));
+                            }
+                        }
+                        return None;
+                    })
+                    .for_each(|(i, j)| {
+                        if let Some(val) = initial_energy_level
+                            .get_mut(j as usize)
+                            .and_then(|inner| inner.get_mut(i as usize))
+                        {
+                            *val += 1;
+                        }
+                    });
+            });
+        }
+        flash_indices.clear();
+    }
+}
+
+fn flashes_count_after_100_steps(initial_energy_level: &mut Vec<Vec<u8>>) -> usize {
+    let mut flash_counts = 0;
+    for _ in 0..100 {
+        flash(initial_energy_level, &mut flash_counts);
     }
     flash_counts
 }
@@ -88,8 +92,8 @@ mod tests {
 
     #[test]
     fn day11_part1() {
-        let input = parse_input(INPUT);
-        assert_eq!(1656, flashes_count_after_100_steps(input));
+        let mut input = parse_input(INPUT);
+        assert_eq!(1656, flashes_count_after_100_steps(&mut input));
     }
 
     const INPUT: &str = r##"5483143223
