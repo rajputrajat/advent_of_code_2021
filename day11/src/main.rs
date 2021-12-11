@@ -49,12 +49,11 @@ fn flash(initial_energy_level: &mut Vec<Vec<u8>>, flash_counts: &mut usize) {
                     .filter_map(|(i_offset, j_offset)| {
                         let i_added = i + i_offset;
                         let j_added = j + j_offset;
-                        if j_added >= 0 && i_added >= 0 {
-                            if !flash_abs.contains(&(i_added, j_added)) {
-                                return Some((i_added, j_added));
-                            }
+                        if j_added >= 0 && i_added >= 0 && !flash_abs.contains(&(i_added, j_added))
+                        {
+                            return Some((i_added, j_added));
                         }
-                        return None;
+                        None
                     })
                     .for_each(|(i, j)| {
                         if let Some(val) = initial_energy_level
