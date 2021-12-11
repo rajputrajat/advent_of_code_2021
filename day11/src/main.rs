@@ -22,11 +22,10 @@ const WINDOW: &[(i8, i8); 8] = &[
 ];
 
 fn flash(initial_energy_level: &mut Vec<Vec<u8>>, flash_counts: &mut usize) {
-    for line in initial_energy_level.iter_mut() {
-        for oct in line.iter_mut() {
-            *oct += 1;
-        }
-    }
+    initial_energy_level
+        .iter_mut()
+        .flatten()
+        .for_each(|oct| *oct += 1);
     let mut flash_abs: Vec<(i8, i8)> = Vec::new();
     loop {
         let mut flash_indices: Vec<(i8, i8)> = Vec::new();
