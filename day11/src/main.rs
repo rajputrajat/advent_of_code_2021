@@ -75,6 +75,22 @@ fn flashes_count_after_100_steps(initial_energy_level: &mut Vec<Vec<u8>>) -> usi
     flash_counts
 }
 
+fn step_when_all_flash_at_once(initial_energy_level: &mut Vec<Vec<u8>>) -> usize {
+    let mut _flash_counts = 0;
+    let mut step_count = 0;
+    loop {
+        flash(initial_energy_level, &mut _flash_counts);
+        step_count += 1;
+        if initial_energy_level
+            .iter()
+            .all(|line| line.iter().all(|oct| oct == &0))
+        {
+            break;
+        }
+    }
+    step_count
+}
+
 fn parse_input(input: &str) -> Vec<Vec<u8>> {
     input
         .lines()
@@ -94,6 +110,12 @@ mod tests {
     fn day11_part1() {
         let mut input = parse_input(INPUT);
         assert_eq!(1656, flashes_count_after_100_steps(&mut input));
+    }
+
+    #[test]
+    fn day11_part2() {
+        let mut input = parse_input(INPUT);
+        assert_eq!(195, step_when_all_flash_at_once(&mut input));
     }
 
     const INPUT: &str = r##"5483143223
