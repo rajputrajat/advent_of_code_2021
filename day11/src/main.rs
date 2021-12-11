@@ -83,10 +83,7 @@ fn step_when_all_flash_at_once(initial_energy_level: &mut Vec<Vec<u8>>) -> usize
     loop {
         flash(initial_energy_level, &mut _flash_counts);
         step_count += 1;
-        if initial_energy_level
-            .iter()
-            .all(|line| line.iter().all(|oct| oct == &0))
-        {
+        if initial_energy_level.iter().flatten().all(|oct| oct == &0) {
             break;
         }
     }
