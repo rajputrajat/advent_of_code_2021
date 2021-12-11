@@ -13,14 +13,15 @@ const WINDOW: &[(i8, i8); 8] = &[
 
 fn flashes_count_after_100_steps(mut initial_energy_level: Vec<Vec<u8>>) -> usize {
     let mut flash_counts = 0;
-    for _ in 0..2 {
-        let mut flash_indices: Vec<(i8, i8)> = Vec::new();
+    for _ in 0..100 {
         for line in initial_energy_level.iter_mut() {
             for oct in line.iter_mut() {
                 *oct += 1;
             }
         }
+        let mut flash_abs: Vec<(i8, i8)> = Vec::new();
         loop {
+            let mut flash_indices: Vec<(i8, i8)> = Vec::new();
             for (il, line) in initial_energy_level.iter().enumerate() {
                 for (io, oct) in line.iter().enumerate() {
                     if *oct > 9 {
@@ -29,29 +30,36 @@ fn flashes_count_after_100_steps(mut initial_energy_level: Vec<Vec<u8>>) -> usiz
                     }
                 }
             }
-            println!("{:?}", flash_indices);
+            flash_abs.extend(&flash_indices);
             if flash_indices.is_empty() {
                 break;
             } else {
                 flash_indices.iter().for_each(|(i, j)| {
-                    WINDOW.iter().for_each(|(ioff, joff)| {
-                        let i_added = i + ioff;
-                        let j_added = j + joff;
-                        if j_added >= 0 && i_added >= 0 {
+                    initial_energy_level[*j as usize][*i as usize] = 0;
+                    WINDOW
+                        .iter()
+                        .filter_map(|(i_offset, j_offset)| {
+                            let i_added = i + i_offset;
+                            let j_added = j + j_offset;
+                            if j_added >= 0 && i_added >= 0 {
+                                if !flash_abs.contains(&(i_added, j_added)) {
+                                    return Some((i_added, j_added));
+                                }
+                            }
+                            return None;
+                        })
+                        .for_each(|(i, j)| {
                             if let Some(val) = initial_energy_level
-                                .get_mut(j_added as usize)
-                                .and_then(|inner| inner.get_mut(i_added as usize))
+                                .get_mut(j as usize)
+                                .and_then(|inner| inner.get_mut(i as usize))
                             {
                                 *val += 1;
                             }
-                        }
-                    });
-                    initial_energy_level[*j as usize][*i as usize] = 0;
+                        });
                 });
             }
             flash_indices.clear();
         }
-        println!("{:?}", initial_energy_level);
     }
     flash_counts
 }
