@@ -1,9 +1,12 @@
 use std::fs::read_to_string;
 
 fn main() {
-    let input = parse_input(&read_to_string("day11/input.txt").unwrap());
+    let mut input = parse_input(&read_to_string("day11/input.txt").unwrap());
     println!("answer of part1 is '{}'", {
         flashes_count_after_100_steps(&mut input.clone())
+    });
+    println!("answer of part2 is '{}'", {
+        step_when_all_flash_at_once(&mut input)
     });
 }
 
